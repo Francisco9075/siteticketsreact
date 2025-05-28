@@ -776,3 +776,23 @@ span.flatpickr-weekday,
 .simplebar-scrollbar.simplebar-visible:before {
   @apply opacity-100;
 }
+
+
+.bg-greymin{
+background-color: rgb(59, 59, 59);
+
+}
+.btn-lgin{
+
+  background-color: rgb(59, 59, 59);
+}
+.btn-lgin:hover{
+
+  background-color: rgb(150, 150, 150);
+}
+
+.text-lgin{
+
+  color: #f9fafb;
+  font-size: 230%;
+}
