@@ -42,7 +42,7 @@ export default function Criarbilhetes() {
                 </div>
 
                 <div>
-                    <Label htmlFor="input">Quantidad</Label>
+                    <Label htmlFor="input">Quantidade</Label>
                     <Input type="text" id="input" />
                 </div>
 
