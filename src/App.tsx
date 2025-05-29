@@ -19,6 +19,8 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Criarbilhetespage from "./pages/criarbilhetespage";
+import CriarEventospage from "./pages/criareventospage"
+import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
 
 
 export default function App() {
@@ -39,9 +41,12 @@ export default function App() {
             {/* Forms */}
             <Route path="/form-elements" element={<FormElements />} />
             <Route path="/criarbilhetespage" element={<Criarbilhetespage />} />
+            <Route path="CriarEventos" element={<CriarEventospage />}/>
 
             {/* Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
+            <Route path="/GerirBilhetes" element={<GerirBilhetes />}/>
+            
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />

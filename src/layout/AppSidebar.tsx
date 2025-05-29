@@ -14,7 +14,8 @@ import {
   PlugInIcon,
   TableIcon,
   UserCircleIcon,
-  TicketIcon
+  TicketIcon,
+  EventIcon
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -35,7 +36,20 @@ const navItems: NavItem[] = [
   {
     icon: <TicketIcon />,
     name: "Bilhetes",
-    subItems: [{ name: "Criar Bilhetes", path: "/criarbilhetespage", pro: false }],
+    subItems: [{ name: "Criar Bilhetes", path: "/criarbilhetespage", pro: false },
+               { name: "Gerir Bilhetes", path: "/GerirBilhetes", pro: false },
+
+    ],
+
+  },
+  {
+    icon: <EventIcon />,
+    name: "Eventos",
+    subItems: [{ name: "Criar Eventos", path: "/CriarEventos", pro: false },
+               { name: "Gerir Eventos", path: "/GerirEventos", pro: false },
+
+    ],
+
   },
   {
     icon: <CalenderIcon />,
@@ -51,7 +65,7 @@ const navItems: NavItem[] = [
     name: "Forms",
     icon: <ListIcon />,
     subItems: [{ name: "Form Elements", path: "/form-elements", pro: false },
-      { name: "Criar Bilhetes", path: "/criarbilhetespage", pro: false },
+      
     ],
   },
   {
