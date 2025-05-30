@@ -8,7 +8,7 @@ export default function Logout() {
     localStorage.removeItem("keepLoggedIn");
     localStorage.removeItem("userEmail");
 
-    navigate("/login");
+    navigate("/signin");
   }, []);
 
   return null;
