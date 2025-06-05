@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router";
 import SignIn from "./pages/AuthPages/SignIn";
 import SignUp from "./pages/AuthPages/SignUp";
 import SignOut from "./components/auth/SignOut";
@@ -20,53 +20,57 @@ import AppLayout from "./layout/AppLayout";
 import { ScrollToTop } from "./components/common/ScrollToTop";
 import Home from "./pages/Dashboard/Home";
 import Criarbilhetespage from "./pages/criarbilhetespage";
-import CriarEventospage from "./pages/criareventospage";
+import CriarEventospage from "./pages/criareventospage"
 import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
+
 
 export default function App() {
   return (
-    <Router>
-      <ScrollToTop />
-      <Routes>
+    <>
+      <Router>
+        <ScrollToTop />
+        <Routes>
+          {/* Dashboard Layout */}
+          <Route element={<AppLayout />}>
+            <Route index path="/" element={<Home />} />
 
-        {/* Public routes */}
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signout" element={<SignOut />} />
+            {/* Others Page */}
+            <Route path="/profile" element={<UserProfiles />} />
+            <Route path="/calendar" element={<Calendar />} />
+            <Route path="/blank" element={<Blank />} />
 
-        {/* Páginas protegidas com layout */}
-        <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-          <Route index element={<Home />} />
-          <Route path="profile" element={<UserProfiles />} />
-          <Route path="calendar" element={<Calendar />} />
-          <Route path="blank" element={<Blank />} />
+            {/* Forms */}
+            <Route path="/form-elements" element={<FormElements />} />
+            <Route path="/criarbilhetespage" element={<Criarbilhetespage />} />
+            <Route path="CriarEventos" element={<CriarEventospage />}/>
 
-          {/* Forms */}
-          <Route path="form-elements" element={<FormElements />} />
-          <Route path="criarbilhetespage" element={<Criarbilhetespage />} />
-          <Route path="CriarEventos" element={<CriarEventospage />} />
+            {/* Tables */}
+            <Route path="/basic-tables" element={<BasicTables />} />
+            <Route path="/GerirBilhetes" element={<GerirBilhetes />}/>
+            
 
-          {/* Tables */}
-          <Route path="basic-tables" element={<BasicTables />} />
-          <Route path="GerirBilhetes" element={<GerirBilhetes />} />
+            {/* Ui Elements */}
+            <Route path="/alerts" element={<Alerts />} />
+            <Route path="/avatars" element={<Avatars />} />
+            <Route path="/badge" element={<Badges />} />
+            <Route path="/buttons" element={<Buttons />} />
+            <Route path="/images" element={<Images />} />
+            <Route path="/videos" element={<Videos />} />
 
-          {/* UI Elements */}
-          <Route path="alerts" element={<Alerts />} />
-          <Route path="avatars" element={<Avatars />} />
-          <Route path="badge" element={<Badges />} />
-          <Route path="buttons" element={<Buttons />} />
-          <Route path="images" element={<Images />} />
-          <Route path="videos" element={<Videos />} />
+            {/* Charts */}
+            <Route path="/line-chart" element={<LineChart />} />
+            <Route path="/bar-chart" element={<BarChart />} />
+          </Route>
 
-          {/* Charts */}
-          <Route path="line-chart" element={<LineChart />} />
-          <Route path="bar-chart" element={<BarChart />} />
-        </Route>
+          {/* Auth Layout */}
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signout" element={<SignOut />} />
 
-        {/* Página 404 */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </Router>
+          {/* Fallback Route */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Router>
+    </>
   );
 }
