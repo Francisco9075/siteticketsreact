@@ -147,8 +147,8 @@ export default function GerirBilhetes() {
               <TableRow>
                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nome</TableCell>
                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tipo</TableCell>
-                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantia Disponível</TableCell>
-                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantia Vendida</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Disponível</TableCell>
+                <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Vendida</TableCell>
                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Preço</TableCell>
                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Data</TableCell>
                 <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Gratuito</TableCell>
@@ -160,19 +160,19 @@ export default function GerirBilhetes() {
             <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
               {bilhetes.map((b) => (
                 <TableRow key={b.ID_Bilhetes}>
-                  <TableCell className="px-5 py-4 text-start">{b.NOME}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.Tipo}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.Quant_Disponivel}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.Quant_Vendida}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">
+                  <TableCell className="px-5 py-4 text-start text-gray-800 dark:text-white">{b.NOME}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Tipo}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Quant_Disponivel}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Quant_Vendida}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">
                     {b.Preco !== null && b.Preco !== undefined ? Number(b.Preco).toFixed(2) + "€" : "-"}
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.Data}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Data}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">
                     <Badge color={b.Gratuito ? "success" : "error"}>{b.Gratuito ? "Sim" : "Não"}</Badge>
                   </TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.ID_Evento}</TableCell>
-                  <TableCell className="px-4 py-3 text-start">{b.ID_Estado_Bilhete}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.ID_Evento}</TableCell>
+                  <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.ID_Estado_Bilhete}</TableCell>
                   <TableCell className="px-4 py-3 text-start">
                     <div className="flex gap-2">
                       <button
@@ -192,6 +192,7 @@ export default function GerirBilhetes() {
                 </TableRow>
               ))}
             </TableBody>
+
           </Table>
         )}
       </div>
