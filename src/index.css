@@ -801,3 +801,10 @@ background-color: rgb(59, 59, 59);
   color: #f9fafb;
   font-size: 230%;
 }
+
+
+.stretch-right {
+  width: 174%;         
+  max-width: 174%;     
+ 
+}
