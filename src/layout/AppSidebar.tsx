@@ -52,6 +52,12 @@ const navItems: NavItem[] = [
 
   },
   {
+    icon: <EventIcon />,
+    name: "Clientes",
+    subItems: [{ name: "Gerir Eventos", path: "/GerirClientes", pro: false },
+    ],
+  },
+  {
     icon: <CalenderIcon />,
     name: "Calendar",
     path: "/calendar",

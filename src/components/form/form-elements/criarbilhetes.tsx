@@ -27,6 +27,15 @@ export default function Criarbilhetes() {
         <div>
             <div className="space-y-6">
 
+<div>
+                    <Label>Evento</Label>
+                    <Select
+                        options={options}
+                        placeholder="Selecione uma opção"
+                        onChange={handleSelectChange}
+                        className="dark:bg-dark-900"
+                    />
+                </div>
                 <div>
                     <Label>Tipo de Bilhetes</Label>
                     <Select

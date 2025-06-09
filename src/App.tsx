@@ -21,6 +21,8 @@ import Home from "./pages/Dashboard/Home";
 import Criarbilhetespage from "./pages/criarbilhetespage";
 import CriarEventospage from "./pages/criareventospage"
 import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
+import GerirEventos from "./components/tables/BasicTables/gerireventos";
+import GerirClientes from "./components/tables/BasicTables/gerirclientes";
 
 
 export default function App() {
@@ -46,7 +48,8 @@ export default function App() {
             {/* Tables */}
             <Route path="/basic-tables" element={<BasicTables />} />
             <Route path="/GerirBilhetes" element={<GerirBilhetes />}/>
-            
+            <Route path="/GerirEventos" element={<GerirEventos />}/>
+            <Route path="/GerirClientes" element={<GerirClientes />}/>
 
             {/* Ui Elements */}
             <Route path="/alerts" element={<Alerts />} />
