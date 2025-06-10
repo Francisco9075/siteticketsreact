@@ -1,15 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
+import { Link } from "react-router";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
 import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
-
-const validCredentials = [
-  { email: "teste@teste.com", password: "123456" },
-  { email: "admin@iticket.com", password: "admin123" },
-];
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -19,29 +15,45 @@ export default function SignInForm() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError("");
 
-    const isValid = validCredentials.some(
-      (cred) => cred.email === email && cred.password === password
-    );
+    if (!email || !password) {
+      setError("Por favor, preencha email e senha.");
+      return;
+    }
 
-    if (isValid) {
-      setError("");
+    try {
+      const response = await fetch("http://localhost/login.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
-      if (isChecked) {
-        localStorage.setItem("keepLoggedIn", "true");
-        localStorage.setItem("userEmail", email);
-      } else {
-        localStorage.removeItem("keepLoggedIn");
-        localStorage.removeItem("userEmail");
+      if (!response.ok) {
+        throw new Error("Erro na resposta do servidor");
       }
 
-      navigate("/"); 
-    } else {
-      setError(
-        "Email ou senha incorretos. Verifique as suas credenciais e tente novamente."
-      );
+      const data = await response.json();
+
+      if (data.success) {
+        if (isChecked) {
+          localStorage.setItem("keepLoggedIn", "true");
+          localStorage.setItem("userEmail", email);
+        } else {
+          localStorage.removeItem("keepLoggedIn");
+          localStorage.removeItem("userEmail");
+        }
+        navigate("/");
+      } else {
+        setError(data.message || "Email ou senha incorretos.");
+      }
+    } catch (err) {
+      setError("Erro de conexão. Tente novamente mais tarde.");
+      console.error(err);
     }
   };
 
@@ -58,82 +70,92 @@ export default function SignInForm() {
               Enter your email and password to sign in!
             </p>
           </div>
-          <div>
-            <form onSubmit={handleSubmit}>
-              <div className="space-y-6">
-                <div>
-                  <Label>
-                    Email <span className="text-error-500">*</span>
-                  </Label>
+          <form onSubmit={handleSubmit}>
+            <div className="space-y-6">
+              <div>
+                <Label>
+                  Email <span className="text-error-500">*</span>
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="info@gmail.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>
+                  Password <span className="text-error-500">*</span>
+                </Label>
+                <div className="relative">
                   <Input
-                    placeholder="info@gmail.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                   />
-                </div>
-                <div>
-                  <Label>
-                    Password <span className="text-error-500">*</span>
-                  </Label>
-                  <div className="relative">
-                    <Input
-                      type={showPassword ? "text" : "password"}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                    <span
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
-                    >
-                      {showPassword ? (
-                        <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      ) : (
-                        <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
-                      )}
-                    </span>
-                  </div>
-                </div>
-
-                {error && (
-                  <div
-                    className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 transition-opacity duration-300"
-                    role="alert"
+                  <span
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute z-30 -translate-y-1/2 cursor-pointer right-4 top-1/2"
                   >
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-5 h-5 text-red-500 flex-shrink-0"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.75a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zm-1.5 7.5a.75.75 0 001.5 0 .75.75 0 00-1.5 0z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Checkbox checked={isChecked} onChange={setIsChecked} />
-                    <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                      Keep me logged in
-                    </span>
-                  </div>
-                </div>
-                <div>
-                  <Button type="submit" className="w-full btn-lgin" size="sm">
-                    Sign in
-                  </Button>
+                    {showPassword ? (
+                      <EyeIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                    ) : (
+                      <EyeCloseIcon className="fill-gray-500 dark:fill-gray-400 size-5" />
+                    )}
+                  </span>
                 </div>
               </div>
-            </form>
-          </div>
+
+              {error && (
+                <div
+                  className="mb-4 p-4 rounded-lg bg-red-50 border border-red-200 dark:bg-red-900/20 dark:border-red-800 transition-opacity duration-300"
+                  role="alert"
+                >
+                  <div className="flex items-center gap-2">
+                    <svg
+                      className="w-5 h-5 text-red-500 flex-shrink-0"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.75a.75.75 0 00-1.5 0v4.5a.75.75 0 001.5 0v-4.5zm-1.5 7.5a.75.75 0 001.5 0 .75.75 0 00-1.5 0z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <p className="text-sm text-red-700 dark:text-red-400">{error}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Checkbox checked={isChecked} onChange={setIsChecked} />
+                  <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
+                    Keep me logged in
+                  </span>
+                </div>
+              </div>
+              <div>
+                <Button type="submit" className="w-full btn-lgin" size="sm">
+                  Sign in
+                </Button>
+              </div>
+            </div>
+            <div className="mt-5">
+              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+                Ainda não tens conta? {""}
+                <Link
+                  to="/signup"
+                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
+                >
+                  Sign Up
+                </Link>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
     </div>

@@ -20,7 +20,12 @@
     "@react-jvectormap/world": "^1.1.2",
     "apexcharts": "^4.1.0",
     "clsx": "^2.1.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
     "flatpickr": "^4.6.13",
+    "lucide-react": "^0.514.0",
+    "mysql2": "^3.14.1",
     "react": "^19.0.0",
     "react-apexcharts": "^1.7.0",
     "react-dnd": "^16.0.1",
@@ -62,5 +67,18 @@
       "react": "^16.8.0 || ^17 || ^18 || ^19",
       "react-dom": "^16.8.0 || ^17 || ^18 || ^19"
     }
-  }
+  },
+  "description": "TailAdmin is a free and open-source admin dashboard template built on **React and Tailwind CSS**, providing developers\r with everything they need to create a comprehensive, data-driven back-end,\r dashboard, or admin panel solution for upcoming web projects.",
+  "main": "eslint.config.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Francisco9075/siteticketsreact.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Francisco9075/siteticketsreact/issues"
+  },
+  "homepage": "https://github.com/Francisco9075/siteticketsreact#readme"
 }
