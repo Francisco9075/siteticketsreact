@@ -23,7 +23,7 @@ import Criarbilhetespage from "./pages/criarbilhetespage";
 import CriarEventospage from "./pages/criareventospage";
 import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
 import GerirEventos from "./components/tables/BasicTables/gerireventos";
-import GerirClientes from "./components/tables/BasicTables/gerirclientes";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 
 export default function App() {
@@ -32,10 +32,12 @@ export default function App() {
       <ScrollToTop />
       <Routes>
 
+
         {/* Public routes */}
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signout" element={<SignOut />} />
+
 
         {/* Páginas protegidas com layout */}
         <Route path="/" element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
@@ -44,16 +46,18 @@ export default function App() {
           <Route path="calendar" element={<Calendar />} />
           <Route path="blank" element={<Blank />} />
 
-            {/* Tables */}
-            <Route path="/basic-tables" element={<BasicTables />} />
-            <Route path="/GerirBilhetes" element={<GerirBilhetes />}/>
-            <Route path="/GerirEventos" element={<GerirEventos />}/>
-            <Route path="/GerirClientes" element={<GerirClientes />}/>
+
+          {/* Forms */}
+          <Route path="form-elements" element={<FormElements />} />
+          <Route path="criarbilhetespage" element={<Criarbilhetespage />} />
+          <Route path="CriarEventos" element={<CriarEventospage />} />
+
 
           {/* Tables */}
           <Route path="basic-tables" element={<BasicTables />} />
           <Route path="GerirBilhetes" element={<GerirBilhetes />} />
           <Route path="GerirEventos" element={<GerirEventos/>} />
+
 
           {/* UI Elements */}
           <Route path="alerts" element={<Alerts />} />
@@ -63,10 +67,12 @@ export default function App() {
           <Route path="images" element={<Images />} />
           <Route path="videos" element={<Videos />} />
 
+
           {/* Charts */}
           <Route path="line-chart" element={<LineChart />} />
           <Route path="bar-chart" element={<BarChart />} />
         </Route>
+
 
         {/* Página 404 */}
         <Route path="*" element={<NotFound />} />
@@ -74,3 +80,6 @@ export default function App() {
     </Router>
   );
 }
+
+
+

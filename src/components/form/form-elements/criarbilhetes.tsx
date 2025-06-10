@@ -8,12 +8,14 @@ import DatePicker from "../date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Checkbox from "../input/Checkbox";
 
+
 export default function Criarbilhetes() {
   const options = [
     { value: "marketing", label: "Marketing" },
     { value: "template", label: "Template" },
     { value: "development", label: "Development" },
   ];
+
 
   const [form, setForm] = useState({
     tipo: "",
@@ -24,9 +26,11 @@ export default function Criarbilhetes() {
     gratuito: false,
   });
 
+
   const handleSelectChange = (value: string) => {
     setForm((prev) => ({ ...prev, tipo: value }));
   };
+
 
   const handleSubmit = async () => {
     try {
@@ -37,6 +41,7 @@ export default function Criarbilhetes() {
         },
         body: JSON.stringify(form),
       });
+
 
       const result = await res.json();
       if (res.ok) {
@@ -49,6 +54,7 @@ export default function Criarbilhetes() {
       alert("Erro de conexão com o servidor.");
     }
   };
+
 
   return (
     <div>
@@ -63,6 +69,7 @@ export default function Criarbilhetes() {
           />
         </div>
 
+
         <div>
           <Label htmlFor="preco">Preço Líquido</Label>
           <Input
@@ -73,6 +80,7 @@ export default function Criarbilhetes() {
           />
         </div>
 
+
         <div>
           <Label htmlFor="quantidade">Quantidade</Label>
           <Input
@@ -82,6 +90,7 @@ export default function Criarbilhetes() {
             onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
           />
         </div>
+
 
         <div>
           <DatePicker
@@ -94,7 +103,9 @@ export default function Criarbilhetes() {
           />
         </div>
 
-        
+
+       
+
 
         <div className="flex items-center gap-3">
           <Checkbox
@@ -105,6 +116,7 @@ export default function Criarbilhetes() {
             Gratuito
           </span>
         </div>
+
 
         <div className="flex gap-5 butaobilhete">
           <Button onClick={handleSubmit} className="butaobilhete" size="md" variant="primary">
