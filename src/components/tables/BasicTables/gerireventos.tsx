@@ -67,8 +67,8 @@ export default function GerirEventos() {
 
   const handleSalvar = () => {
     if (eventoEditando) {
-      setEventoData(prev => 
-        prev.map(evento => 
+      setEventoData(prev =>
+        prev.map(evento =>
           evento.id === eventoEditando.id ? eventoEditando : evento
         )
       );
@@ -99,7 +99,11 @@ export default function GerirEventos() {
 
   return (
     <>
+      <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
+        Gestão de Eventos
+      </h3>
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] mt-6">
+
         <div className="max-w-full overflow-x-auto">
           <Table>
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
@@ -139,8 +143,8 @@ export default function GerirEventos() {
                         evento.estado === "Ativo"
                           ? "success"
                           : evento.estado === "Cancelado"
-                          ? "error"
-                          : "warning"
+                            ? "error"
+                            : "warning"
                       }
                     >
                       {evento.estado}

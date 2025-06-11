@@ -15,7 +15,10 @@ import {
   TableIcon,
   UserCircleIcon,
   TicketIcon,
-  EventIcon
+  Financeiro,
+  EventIcon,
+  Cliente
+  
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
 import SidebarWidget from "./SidebarWidget";
@@ -52,11 +55,20 @@ const navItems: NavItem[] = [
 
   },
   {
-    icon: <EventIcon />,
+    icon: <Cliente />,
     name: "Clientes",
     subItems: [{ name: "Gerir Eventos", path: "/GerirClientes", pro: false },
     ],
   },
+  {
+    icon: <Financeiro />,
+    name: "Finanças",
+    subItems: [{ name: "Parte Financeira", path: "/Financeiro", pro: false },
+      { name: "Dashboard Financeira", path: "/DashboardFinanceira", pro: false }
+
+    ],
+  },
+
   {
     icon: <CalenderIcon />,
     name: "Calendar",

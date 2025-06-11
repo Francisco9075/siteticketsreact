@@ -54,6 +54,8 @@ import { ReactComponent as AlertHexaIcon } from "./alert-hexa.svg?react";
 import { ReactComponent as ErrorHexaIcon } from "./info-hexa.svg?react";
 import { ReactComponent as TicketIcon } from "./ticket.svg?react";
 import { ReactComponent as EventIcon } from "./Evento.svg?react";
+import { ReactComponent as Financeiro } from "./Financeiro.svg?react";
+import { ReactComponent as Cliente } from "./Cliente.svg?react";
 
 
 
@@ -113,5 +115,7 @@ export {
   ChevronUpIcon,
   ChatIcon,
   TicketIcon,
-  EventIcon
+  EventIcon,
+  Financeiro,
+ Cliente  
 };

@@ -24,7 +24,9 @@ import CriarEventospage from "./pages/criareventospage";
 import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
 import GerirEventos from "./components/tables/BasicTables/gerireventos";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
-
+import GerirClientes from "./components/tables/BasicTables/gerirclientes";
+import ProcessamentoPagamentos from "./pages/finaceiro";
+import FinancialDashboard from "./pages/Dashboardfinanceira";
 
 export default function App() {
   return (
@@ -51,12 +53,16 @@ export default function App() {
           <Route path="form-elements" element={<FormElements />} />
           <Route path="criarbilhetespage" element={<Criarbilhetespage />} />
           <Route path="CriarEventos" element={<CriarEventospage />} />
+          <Route path="Financeiro" element={<ProcessamentoPagamentos/>}/>
+          <Route path="DashboardFinanceira" element={<FinancialDashboard/>}/>
+        
 
 
           {/* Tables */}
           <Route path="basic-tables" element={<BasicTables />} />
           <Route path="GerirBilhetes" element={<GerirBilhetes />} />
           <Route path="GerirEventos" element={<GerirEventos/>} />
+          <Route path="GerirClientes" element={<GerirClientes/>}/>
 
 
           {/* UI Elements */}
