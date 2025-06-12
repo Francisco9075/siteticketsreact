@@ -22,7 +22,7 @@ import Home from "./pages/Dashboard/Home";
 import Criarbilhetespage from "./pages/criarbilhetespage";
 import CriarEventospage from "./pages/criareventospage";
 import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
-import GerirEventos from "./components/tables/BasicTables/gerireventos";
+import GerirEventos from "./components/tables/BasicTables/GerirEventos";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import GerirClientes from "./components/tables/BasicTables/gerirclientes";
 import ProcessamentoPagamentos from "./pages/finaceiro";

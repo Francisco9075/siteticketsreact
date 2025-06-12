@@ -1,13 +1,10 @@
-import { useState } from "react";
-import ComponentCard from "../../common/ComponentCard";
+import { useState, useEffect } from "react";
 import Label from "../Label";
 import Input from "../input/InputField";
 import Select from "../Select";
-import { TimeIcon } from "../../../icons";
 import DatePicker from "../date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Checkbox from "../input/Checkbox";
-
 
 export default function Criarbilhetes() {
   const options = [
@@ -16,8 +13,8 @@ export default function Criarbilhetes() {
     { value: "development", label: "Development" },
   ];
 
-
   const [form, setForm] = useState({
+    nome: "",
     tipo: "",
     preco: "",
     quantidade: "",
@@ -26,11 +23,25 @@ export default function Criarbilhetes() {
     gratuito: false,
   });
 
+  const [valorFinal, setValorFinal] = useState("0.00");
+
+  useEffect(() => {
+    if (form.gratuito) {
+      setForm((prev) => ({ ...prev, preco: "0" }));
+    }
+  }, [form.gratuito]);
+
+  useEffect(() => {
+    const precoBase = parseFloat(form.preco.replace(",", ".")) || 0;
+    const iva = precoBase * 0.06;
+    const taxaPlataforma = 1.23;
+    const total = precoBase + iva + taxaPlataforma;
+    setValorFinal(total.toFixed(2));
+  }, [form.preco]);
 
   const handleSelectChange = (value: string) => {
     setForm((prev) => ({ ...prev, tipo: value }));
   };
-
 
   const handleSubmit = async () => {
     try {
@@ -41,7 +52,6 @@ export default function Criarbilhetes() {
         },
         body: JSON.stringify(form),
       });
-
 
       const result = await res.json();
       if (res.ok) {
@@ -55,10 +65,21 @@ export default function Criarbilhetes() {
     }
   };
 
-
   return (
     <div>
       <div className="space-y-6">
+        {/* Nome */}
+        <div>
+          <Label htmlFor="nome">Nome</Label>
+          <Input
+            type="text"
+            id="nome"
+            value={form.nome}
+            onChange={(e) => setForm((f) => ({ ...f, nome: e.target.value }))}
+          />
+        </div>
+
+        {/* Tipo de Bilhetes */}
         <div>
           <Label>Tipo de Bilhetes</Label>
           <Select
@@ -69,29 +90,40 @@ export default function Criarbilhetes() {
           />
         </div>
 
-
+        {/* Preço */}
         <div>
           <Label htmlFor="preco">Preço Líquido</Label>
           <Input
             type="text"
             id="preco"
             value={form.preco}
-            onChange={(e) => setForm((f) => ({ ...f, preco: e.target.value }))}
+            disabled={form.gratuito}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, preco: e.target.value }))
+            }
           />
         </div>
 
+        {/* Valor Final */}
+        <div>
+          <Label>Valor Final (IVA 6% + 1.23€)</Label>
+          <Input type="text" value={`${valorFinal} €`} readOnly />
+        </div>
 
+        {/* Quantidade */}
         <div>
           <Label htmlFor="quantidade">Quantidade</Label>
           <Input
             type="text"
             id="quantidade"
             value={form.quantidade}
-            onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
+            onChange={(e) =>
+              setForm((f) => ({ ...f, quantidade: e.target.value }))
+            }
           />
         </div>
 
-
+        {/* Data do Evento */}
         <div>
           <DatePicker
             id="date-picker"
@@ -103,10 +135,7 @@ export default function Criarbilhetes() {
           />
         </div>
 
-
-       
-
-
+        {/* Gratuito */}
         <div className="flex items-center gap-3">
           <Checkbox
             checked={form.gratuito}
@@ -117,9 +146,14 @@ export default function Criarbilhetes() {
           </span>
         </div>
 
-
+        {/* Botão */}
         <div className="flex gap-5 butaobilhete">
-          <Button onClick={handleSubmit} className="butaobilhete" size="md" variant="primary">
+          <Button
+            onClick={handleSubmit}
+            className="butaobilhete"
+            size="md"
+            variant="primary"
+          >
             Publicar
           </Button>
         </div>

@@ -31,36 +31,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit();
     }
 
+    $nome = $conn->real_escape_string($data["nome"]);
     $tipo = $conn->real_escape_string($data["tipo"]);
-    $preco = floatval($data["preco"]);
+    $precoLiquido = floatval($data["preco"]);
     $quantidade = intval($data["quantidade"]);
     $dataEvento = $conn->real_escape_string($data["data"]);
     $gratuito = intval($data["gratuito"]);
 
-    // NOTA: Ajustado com base nas colunas da tabela BILHETES visíveis no HeidiSQL
-    $sql = "INSERT INTO BILHETES (Tipo, Preco, Quant_Disponivel, Data, Gratuito) 
-            VALUES ('$tipo', $preco, $quantidade, '$dataEvento', $gratuito)";
+    // Se for gratuito, o valor final é 0
+    $precoFinal = $gratuito ? 0 : round($precoLiquido * 1.06 + 1.23, 2); // IVA 6% + 1.23€
+
+    $sql = "INSERT INTO BILHETES (NOME, Tipo, Preco, Quant_Disponivel, Data, Gratuito) 
+            VALUES ('$nome', '$tipo', $precoFinal, $quantidade, '$dataEvento', $gratuito)";
 
     if ($conn->query($sql)) {
         echo json_encode(["sucesso" => true, "message" => "Bilhete criado com sucesso!"]);
     } else {
         http_response_code(500);
         echo json_encode(["erro" => "Erro ao inserir: " . $conn->error]);
-    }
-
-} elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $sql = "SELECT * FROM BILHETES ORDER BY ID_Bilhetes DESC"; // Corrigido o nome da coluna
-    $result = $conn->query($sql);
-
-    if ($result) {
-        $bilhetes = [];
-        while ($row = $result->fetch_assoc()) {
-            $bilhetes[] = $row;
-        }
-        echo json_encode($bilhetes);
-    } else {
-        http_response_code(500);
-        echo json_encode(["erro" => "Erro ao buscar bilhetes: " . $conn->error]);
     }
 }
 
