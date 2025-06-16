@@ -40,7 +40,7 @@ export default function GerirEventos() {
     fetch("http://localhost/gerireventos.php")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data.successo) {
           setEventos(data.eventos);
         } else {
           console.error("Erro ao buscar eventos:", data.message);
@@ -149,9 +149,8 @@ export default function GerirEventos() {
   const getEstadoText = (id: number) => {
     const estados = {
       1: "Ativo",
-      2: "Concluído",
-      3: "Cancelado",
-      4: "Adiado",
+      2: "Cancelado",
+      3: "Concluído",
     };
     return estados[id as keyof typeof estados] || "Desconhecido";
   };
@@ -160,11 +159,8 @@ export default function GerirEventos() {
   const getCategoriaText = (id: number) => {
     const categorias = {
       1: "Música",
-      2: "Tecnologia",
-      3: "Esporte",
-      4: "Arte",
-      5: "Educação",
-      6: "Negócios",
+      2: "Negócios",
+      3: "Tecnologia",
     };
     return categorias[id as keyof typeof categorias] || "Desconhecida";
   };
@@ -352,11 +348,8 @@ export default function GerirEventos() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   >
                     <option value={1}>Música</option>
-                    <option value={2}>Tecnologia</option>
-                    <option value={3}>Esporte</option>
-                    <option value={4}>Arte</option>
-                    <option value={5}>Educação</option>
-                    <option value={6}>Negócios</option>
+                    <option value={2}>Negócios</option>
+                    <option value={3}>Tecnologia</option>
                   </select>
                 </div>
               </div>
@@ -422,9 +415,8 @@ export default function GerirEventos() {
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   >
                     <option value={1}>Ativo</option>
-                    <option value={2}>Concluído</option>
-                    <option value={3}>Cancelado</option>
-                    <option value={4}>Adiado</option>
+                    <option value={2}>Cancelado</option>
+                    <option value={3}>Concluído</option>
                   </select>
                 </div>
               </div>
