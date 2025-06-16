@@ -44,9 +44,9 @@ try {
         error_log("Primeiro evento: " . print_r($eventos[0], true));
     }
 
-    echo json_encode(['success' => true, 'eventos' => $eventos]);
+    echo json_encode(['successo' => true, 'eventos' => $eventos]);
 
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Erro no banco de dados: ' . $e->getMessage()]);
+    echo json_encode(['successo' => false, 'message' => 'Erro no banco de dados: ' . $e->getMessage()]);
 }
 ?>
