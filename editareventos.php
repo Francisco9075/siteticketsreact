@@ -32,20 +32,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $idEvento = intval($data["id_evento"]);
-    $nome = $conn->real_escape_string($data["nome"]);
-    $descricao = $conn->real_escape_string($data["descricao"]);
-    $dataInicio = $conn->real_escape_string($data["data_inicio"]);
-    $dataFim = $conn->real_escape_string($data["data_fim"]);
-    $localizacao = $conn->real_escape_string($data["localizacao"]);
-    $dataPublicacao = $conn->real_escape_string($data["data_publicacao"]);
-    $linkUnico = $conn->real_escape_string($data["link_unico"]);
-    $termosAceites = intval($data["termos_aceites"]);
+    $nome = isset($data["nome"]) ? $conn->real_escape_string($data["nome"]) : '';
+    $descricao = isset($data["descricao"]) ? $conn->real_escape_string($data["descricao"]) : '';
+    $dataInicio = isset($data["data_inicio"]) ? $conn->real_escape_string($data["data_inicio"]) : '';
+    $dataFim = isset($data["data_fim"]) ? $conn->real_escape_string($data["data_fim"]) : '';
+    $imagem = isset($data["imagem"]) ? $conn->real_escape_string($data["imagem"]) : '';
+    $idEstadoEvento = isset($data["id_estado_evento"]) ? intval($data["id_estado_evento"]) : '';
+    $idCategoria = isset($data["id_categoria"]) ? intval($data["id_categoria"]) : '';
+    $cartaz = isset($data["cartaz_do_evento"]) ? $conn->real_escape_string($data["cartaz_do_evento"]) : '';
+    $localizacao = isset($data["localizacao"]) ? $conn->real_escape_string($data["localizacao"]) : '';
+    $dataPublicacao = isset($data["data_publicacao"]) ? $conn->real_escape_string($data["data_publicacao"]) : '';
+    $linkUnico = isset($data["link_unico"]) ? $conn->real_escape_string($data["link_unico"]) : '';
+    $termosAceites = isset($data["termos_aceites"]) ? intval($data["termos_aceites"]) : 0;
 
     $sql = "UPDATE EVENTOS SET 
                 NOME = '$nome',
                 Descricao = '$descricao',
                 Data_Inicio = '$dataInicio',
                 Data_Fim = '$dataFim',
+                Imagem = '$imagem',
+                ID_Estado_Evento = '$idEstadoEvento',
+                ID_Categoria = '$idCategoria',
+                Cartaz_do_evento = '$cartaz',
                 Localizacao = '$localizacao',
                 Data_publicacao = '$dataPublicacao',
                 Link_unico = '$linkUnico',
@@ -61,7 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
     $sql = "SELECT 
-                ID_Evento, NOME, Descricao, Data_Inicio, Data_Fim, Localizacao,
+                NOME, Descricao, Data_Inicio, Data_Fim, Imagem, 
+                ID_Estado_Evento, ID_Categoria, Cartaz_do_evento, Localizacao,
                 Data_publicacao, Link_unico, Termos_aceites
             FROM EVENTOS ORDER BY ID_Evento DESC";
 
