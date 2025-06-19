@@ -135,7 +135,7 @@ export default function CriarEventos() {
       </div>
 
       <div>
-        <Label>ID Estado Evento</Label>
+        <Label>Estado Evento</Label>
         <Select
           options={estadoEventoOptions}
           placeholder="Selecione o estado"
@@ -144,7 +144,7 @@ export default function CriarEventos() {
       </div>
 
       <div>
-        <Label>ID Categoria</Label>
+        <Label>Categoria</Label>
         <Select
           options={categoriaOptions}
           placeholder="Selecione a categoria"
