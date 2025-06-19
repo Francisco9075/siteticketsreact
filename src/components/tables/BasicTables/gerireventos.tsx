@@ -7,17 +7,22 @@ import {
   TableRow,
 } from "../../ui/table";
 import Badge from "../../ui/badge/Badge";
-import { X, Pencil, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 
 interface Evento {
   ID_Evento: number;
-  Nome: string;
+  NOME: string;
   Descricao: string;
-  Local: string;
   Data_Inicio: string;
   Data_Fim: string;
-  Gratuito: boolean;
-  Estado: number; // 1 = Ativo, 0 = Inativo
+  Imagem: string;
+  ID_Estado_Evento: number;
+  ID_Categoria: number;
+  Cartaz_do_evento: string;
+  Localizacao: string;
+  Data_publicacao: string;
+  Link_unico: string;
+  Termos_aceites: number;
 }
 
 export default function GerirEventos() {
@@ -32,13 +37,13 @@ export default function GerirEventos() {
 
   function buscarEventos() {
     setCarregando(true);
-    fetch("http://localhost/listeventos.php")
+    fetch("http://localhost/gerireventos.php")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data.successo) {
           setEventos(data.eventos);
         } else {
-          console.error("Erro ao buscar eventos");
+          console.error("Erro ao buscar eventos:", data.message);
         }
         setCarregando(false);
       })
@@ -49,16 +54,27 @@ export default function GerirEventos() {
   }
 
   function handleDelete(id: number) {
+    if (!id) {
+      alert("ID inválido para exclusão");
+      return;
+    }
+
     if (!confirm("Deseja realmente excluir este evento?")) return;
 
-    fetch(`http://localhost/apagarevento.php?id=${id}`, { method: "DELETE" })
+    fetch("http://localhost/apagareventos.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id_evento: id }),
+    })
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
+        if (data.sucesso) {
           setEventos((prev) => prev.filter((e) => e.ID_Evento !== id));
           alert("Evento excluído com sucesso!");
         } else {
-          alert("Erro ao excluir evento");
+          alert("Erro ao excluir evento: " + (data.erro || "Erro desconhecido"));
         }
       })
       .catch((error) => {
@@ -75,23 +91,34 @@ export default function GerirEventos() {
     if (!editandoEvento) return;
 
     setSalvando(true);
-    const formData = new FormData();
-    formData.append("id", editandoEvento.ID_Evento.toString());
-    formData.append("nome", editandoEvento.Nome);
-    formData.append("descricao", editandoEvento.Descricao);
-    formData.append("local", editandoEvento.Local);
-    formData.append("data_inicio", editandoEvento.Data_Inicio);
-    formData.append("data_fim", editandoEvento.Data_Fim);
-    formData.append("gratuito", editandoEvento.Gratuito ? "1" : "0");
 
-    fetch("http://localhost/editarevento.php", {
+    const payload = {
+      id_evento: editandoEvento.ID_Evento,
+      nome: editandoEvento.NOME,
+      descricao: editandoEvento.Descricao,
+      data_inicio: editandoEvento.Data_Inicio,
+      data_fim: editandoEvento.Data_Fim,
+      localizacao: editandoEvento.Localizacao,
+      data_publicacao: editandoEvento.Data_publicacao,
+      link_unico: editandoEvento.Link_unico,
+      termos_aceites: editandoEvento.Termos_aceites,
+      id_estado_evento: editandoEvento.ID_Estado_Evento,
+      id_categoria: editandoEvento.ID_Categoria,
+      imagem: editandoEvento.Imagem,
+      cartaz_do_evento: editandoEvento.Cartaz_do_evento,
+    };
+
+    fetch("http://localhost/editareventos.php", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     })
       .then((res) => res.json())
       .then((data) => {
         setSalvando(false);
-        if (data.success) {
+        if (data.sucesso) {
           setEventos((prev) =>
             prev.map((e) =>
               e.ID_Evento === editandoEvento.ID_Evento ? editandoEvento : e
@@ -100,7 +127,7 @@ export default function GerirEventos() {
           setEditandoEvento(null);
           alert("Evento atualizado com sucesso!");
         } else {
-          alert("Erro ao atualizar evento");
+          alert("Erro ao atualizar evento: " + (data.erro || "Erro desconhecido"));
         }
       })
       .catch((error) => {
@@ -112,54 +139,163 @@ export default function GerirEventos() {
 
   function handleInputChange(field: keyof Evento, value: any) {
     if (!editandoEvento) return;
-    setEditandoEvento({ ...editandoEvento, [field]: value });
+    setEditandoEvento({
+      ...editandoEvento,
+      [field]: field === "ID_Estado_Evento" || field === "ID_Categoria" || field === "Termos_aceites" ? parseInt(value) : value,
+    });
   }
+
+  // Map ID_Estado_Evento to display text
+  const getEstadoText = (id: number) => {
+    const estados = {
+      1: "Ativo",
+      2: "Cancelado",
+      3: "Concluído",
+    };
+    return estados[id as keyof typeof estados] || "Desconhecido";
+  };
+
+  // Map ID_Categoria to display text
+  const getCategoriaText = (id: number) => {
+    const categorias = {
+      1: "Música",
+      2: "Negócios",
+      3: "Tecnologia",
+    };
+    return categorias[id as keyof typeof categorias] || "Desconhecida";
+  };
 
   return (
     <>
-      <h3 className="mb-4 text-2xl font-semibold text-gray-800 dark:text-white">
+      <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
         Gestão de Eventos
       </h3>
-      <div className="rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] overflow-hidden">
-        <div className="max-w-full overflow-x-auto p-4">
+      <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] mt-6">
+        <div className="max-w-full overflow-x-auto">
           {carregando ? (
-            <p className="text-gray-500">A carregar eventos...</p>
+            <p className="text-gray-500 p-4">A carregar eventos...</p>
           ) : eventos.length === 0 ? (
-            <p className="text-red-500">Nenhum evento encontrado.</p>
+            <p className="text-red-500 p-4">Nenhum evento encontrado.</p>
           ) : (
             <Table>
-              <TableHeader>
+              <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  {["Nome", "Descrição", "Local", "Início", "Fim", "Gratuito", "Estado", "Ações"].map((h) => (
-                    <TableCell key={h} isHeader>{h}</TableCell>
-                  ))}
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Nome
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Descrição
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Data Início
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Data Fim
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Estado
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Categoria
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Localização
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Publicação
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Link
+                  </TableCell>
+                  <TableCell
+                    isHeader
+                    className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400"
+                  >
+                    Ações
+                  </TableCell>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {eventos.map((e) => (
-                  <TableRow key={e.ID_Evento}>
-                    <TableCell>{e.Nome}</TableCell>
-                    <TableCell>{e.Descricao}</TableCell>
-                    <TableCell>{e.Local}</TableCell>
-                    <TableCell>{e.Data_Inicio}</TableCell>
-                    <TableCell>{e.Data_Fim}</TableCell>
-                    <TableCell>
-                      <Badge color={e.Gratuito ? "success" : "error"}>
-                        {e.Gratuito ? "Sim" : "Não"}
+              <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
+                {eventos.map((evento) => (
+                  <TableRow key={evento.ID_Evento}>
+                    <TableCell className="px-5 py-4 sm:px-6 text-start font-medium text-sm text-gray-800 dark:text-white/90">
+                      {evento.NOME}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {evento.Descricao}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {evento.Data_Inicio}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {evento.Data_Fim}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm">
+                      <Badge
+                        size="sm"
+                        color={
+                          getEstadoText(evento.ID_Estado_Evento) === "Ativo"
+                            ? "success"
+                            : getEstadoText(evento.ID_Estado_Evento) === "Cancelado"
+                            ? "error"
+                            : "warning"
+                        }
+                      >
+                        {getEstadoText(evento.ID_Estado_Evento)}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge color={e.Estado === 1 ? "success" : "warning"}>
-                        {e.Estado === 1 ? "Ativo" : "Inativo"}
-                      </Badge>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {getCategoriaText(evento.ID_Categoria)}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {evento.Localizacao}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-gray-500 dark:text-gray-400">
+                      {evento.Data_publicacao}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start text-sm text-blue-600 dark:text-blue-400 underline">
+                      {evento.Link_unico}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-start">
                       <div className="flex gap-2">
-                        <button onClick={() => handleEdit(e)} className="text-blue-500 hover:text-blue-600">
-                          <Pencil className="w-4 h-4" />
+                        <button
+                          className="px-3 py-1 text-xs font-medium text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
+                          onClick={() => handleEdit(evento)}
+                        >
+                          Editar
                         </button>
-                        <button onClick={() => handleDelete(e.ID_Evento)} className="text-red-500 hover:text-red-600">
-                          <Trash2 className="w-4 h-4" />
+                        <button
+                          className="px-3 py-1 text-xs font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
+                          onClick={() => handleDelete(evento.ID_Evento)}
+                        >
+                          Excluir
                         </button>
                       </div>
                     </TableCell>
@@ -169,63 +305,210 @@ export default function GerirEventos() {
             </Table>
           )}
         </div>
+      </div>
 
-        {editandoEvento && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 p-4">
-            <div className="relative w-full max-w-2xl rounded-lg bg-white p-6 shadow-xl dark:bg-gray-800 max-h-[90vh] overflow-y-auto">
-              <button onClick={() => setEditandoEvento(null)} className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 dark:hover:text-white">
+      {/* Modal de Edição */}
+      {editandoEvento && (
+        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30">
+          <div className="pointer-events-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Editar Evento
+              </h2>
+              <button
+                onClick={() => setEditandoEvento(null)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+              >
                 <X className="w-5 h-5" />
               </button>
-              <h2 className="mb-4 text-xl font-bold text-gray-900 dark:text-white">Editar Evento</h2>
+            </div>
 
+            <div className="p-6 space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <InputField label="Nome" value={editandoEvento.Nome} onChange={(v) => handleInputChange("Nome", v)} />
-                <InputField label="Descrição" value={editandoEvento.Descricao} onChange={(v) => handleInputChange("Descricao", v)} />
-                <InputField label="Local" value={editandoEvento.Local} onChange={(v) => handleInputChange("Local", v)} />
-                <InputField label="Data Início" type="date" value={editandoEvento.Data_Inicio} onChange={(v) => handleInputChange("Data_Inicio", v)} />
-                <InputField label="Data Fim" type="date" value={editandoEvento.Data_Fim} onChange={(v) => handleInputChange("Data_Fim", v)} />
-                <div className="md:col-span-2">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" checked={editandoEvento.Gratuito} onChange={(e) => handleInputChange("Gratuito", e.target.checked)} />
-                    <span className="text-sm text-gray-700 dark:text-gray-300">Gratuito</span>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Nome do Evento
                   </label>
+                  <input
+                    type="text"
+                    value={editandoEvento.NOME}
+                    onChange={(e) => handleInputChange("NOME", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Categoria
+                  </label>
+                  <select
+                    value={editandoEvento.ID_Categoria}
+                    onChange={(e) =>
+                      handleInputChange("ID_Categoria", parseInt(e.target.value))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value={1}>Música</option>
+                    <option value={2}>Negócios</option>
+                    <option value={3}>Tecnologia</option>
+                  </select>
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
-                <button onClick={() => setEditandoEvento(null)} className="px-4 py-2 bg-gray-200 text-gray-600 rounded hover:bg-gray-300">Cancelar</button>
-                <button onClick={handleSave} disabled={salvando} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50">
-                  {salvando ? "Salvando..." : "Salvar"}
-                </button>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Descrição
+                </label>
+                <textarea
+                  value={editandoEvento.Descricao}
+                  onChange={(e) => handleInputChange("Descricao", e.target.value)}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Data de Início
+                  </label>
+                  <input
+                    type="date"
+                    value={editandoEvento.Data_Inicio}
+                    onChange={(e) => handleInputChange("Data_Inicio", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Data de Fim
+                  </label>
+                  <input
+                    type="date"
+                    value={editandoEvento.Data_Fim}
+                    onChange={(e) => handleInputChange("Data_Fim", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Localização
+                  </label>
+                  <input
+                    type="text"
+                    value={editandoEvento.Localizacao}
+                    onChange={(e) => handleInputChange("Localizacao", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Estado
+                  </label>
+                  <select
+                    value={editandoEvento.ID_Estado_Evento}
+                    onChange={(e) =>
+                      handleInputChange("ID_Estado_Evento", parseInt(e.target.value))
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  >
+                    <option value={1}>Ativo</option>
+                    <option value={2}>Cancelado</option>
+                    <option value={3}>Concluído</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Data de Publicação
+                  </label>
+                  <input
+                    type="date"
+                    value={editandoEvento.Data_publicacao}
+                    onChange={(e) =>
+                      handleInputChange("Data_publicacao", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Link Único
+                  </label>
+                  <input
+                    type="text"
+                    value={editandoEvento.Link_unico}
+                    onChange={(e) => handleInputChange("Link_unico", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    URL da Imagem
+                  </label>
+                  <input
+                    type="text"
+                    value={editandoEvento.Imagem}
+                    onChange={(e) => handleInputChange("Imagem", e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    URL do Cartaz
+                  </label>
+                  <input
+                    type="text"
+                    value={editandoEvento.Cartaz_do_evento}
+                    onChange={(e) =>
+                      handleInputChange("Cartaz_do_evento", e.target.value)
+                    }
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editandoEvento.Termos_aceites === 1}
+                    onChange={(e) => handleInputChange("Termos_aceites", e.target.checked ? 1 : 0)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Termos Aceites
+                  </span>
+                </label>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
 
-function InputField({
-  label,
-  type = "text",
-  value,
-  onChange,
-}: {
-  label: string;
-  type?: string;
-  value: any;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-      />
-    </div>
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
+              <button
+                onClick={() => setEditandoEvento(null)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                disabled={salvando}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSave}
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50"
+                disabled={salvando}
+              >
+                {salvando ? "Salvando..." : "Salvar Alterações"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
