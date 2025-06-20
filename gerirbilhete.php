@@ -19,19 +19,20 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    // CORREÇÃO: Removido o alias "as ID_Bilhete" para manter "ID_Bilhetes"
     $sql = "SELECT 
         ID_Bilhetes,
-        NOME,
+        BILHETES.NOME,
         Tipo,
         Quant_Disponivel,
         Quant_Vendida,
         Preco,
         Data,
         Gratuito,
-        ID_Evento,
-        ID_Estado_Bilhete
-        FROM BILHETES";
+        EVENTOS.NOME AS ID_Evento,
+        Estado_Bilhete.Nome AS ID_Estado_Bilhete
+        FROM BILHETES
+        INNER JOIN EVENTOS ON BILHETES.ID_Evento = EVENTOS.ID_Evento
+        INNER JOIN Estado_Bilhete ON BILHETES.ID_Estado_Bilhete = Estado_Bilhete.ID_Estado_Bilhete";
     
     $stmt = $pdo->query($sql);
     $bilhetes = $stmt->fetchAll(PDO::FETCH_ASSOC);

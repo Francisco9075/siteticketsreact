@@ -18,8 +18,8 @@ interface Bilhete {
   Preco: number;
   Data: string;
   Gratuito: boolean;
-  ID_Evento: number;
-  ID_Estado_Bilhete: number;
+  ID_Evento: string;
+  ID_Estado_Bilhete: string;
 }
 
 export default function GerirBilhetes() {
@@ -160,18 +160,18 @@ export default function GerirBilhetes() {
                 {bilhetes.map((b) => (
                   <TableRow key={b.ID_Bilhetes}>
                     <TableCell className="px-5 py-4 text-start text-gray-800 dark:text-white">{b.NOME}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Tipo}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Quant_Disponivel}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Quant_Vendida}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Tipo}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Disponivel}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Vendida}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       {b.Preco !== null && b.Preco !== undefined ? Number(b.Preco).toFixed(2) + "€" : "-"}
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.Data}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Data}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       <Badge color={b.Gratuito ? "success" : "error"}>{b.Gratuito ? "Sim" : "Não"}</Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.ID_Evento}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-white">{b.ID_Estado_Bilhete}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.ID_Evento}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.ID_Estado_Bilhete}</TableCell>
                     <TableCell className="px-4 py-3 text-start">
                       <div className="flex gap-2">
                         <button
@@ -217,7 +217,7 @@ export default function GerirBilhetes() {
                     type="text"
                     value={editandoBilhete.NOME}
                     onChange={(e) => handleInputChange('NOME', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div>
@@ -226,7 +226,7 @@ export default function GerirBilhetes() {
                     type="text"
                     value={editandoBilhete.Tipo}
                     onChange={(e) => handleInputChange('Tipo', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div>
@@ -235,7 +235,7 @@ export default function GerirBilhetes() {
                     type="number"
                     value={editandoBilhete.Quant_Disponivel}
                     onChange={(e) => handleInputChange('Quant_Disponivel', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div>
@@ -244,7 +244,7 @@ export default function GerirBilhetes() {
                     type="number"
                     value={editandoBilhete.Quant_Vendida}
                     onChange={(e) => handleInputChange('Quant_Vendida', parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div>
@@ -254,7 +254,7 @@ export default function GerirBilhetes() {
                     step="0.01"
                     value={editandoBilhete.Preco}
                     onChange={(e) => handleInputChange('Preco', parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div>
@@ -263,7 +263,7 @@ export default function GerirBilhetes() {
                     type="date"
                     value={editandoBilhete.Data}
                     onChange={(e) => handleInputChange('Data', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
                 <div className="md:col-span-2">
