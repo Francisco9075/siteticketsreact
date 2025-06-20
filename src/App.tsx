@@ -25,7 +25,7 @@ import GerirBilhetes from "./components/tables/BasicTables/gerirbilhetes";
 import GerirEventos from "./components/tables/BasicTables/GerirEventos";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import GerirClientes from "./components/tables/BasicTables/gerirclientes";
-import ProcessamentoPagamentos from "./pages/finaceiro";
+import ProcessamentoPagamentos from "./pages/financeiro";
 import FinancialDashboard from "./pages/Dashboardfinanceira";
 
 export default function App() {

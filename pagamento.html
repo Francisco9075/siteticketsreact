@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>SOLLEC | 1º Edição | 2 de Maio de 2025 | LAGO LISBOA</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://unpkg.com/akar-icons-fonts"></script>
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header with Progress Indicator -->
+    <header class="bg-white shadow-sm">
+        <div class="max-w-5xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+  
+
+                <img src="/testing/assets/LOGO_PRETO.png" alt="Logo" class="relative inset-0 mx-auto h-10 opacity-100 z-10">
+              
+         
+                <!-- <div class="text-sm text-gray-600">solec@solec.pt</div> -->
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4 py-8">
+    <form id="checkoutForm" method="POST" action="/testing/events/sollec-1st-edition-lago-02-maio">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Checkout Form -->
+                <div class="lg:col-span-2 space-y-8">
+                    <!-- Delivery Options -->
+                    <section class="bg-white p-6 rounded-lg shadow-sm">
+                        <h2 class="text-xl font-semibold mb-4">Tickets List 🎟️</h2>
+                        <div class="space-y-4">
+                            <!-- Ticket Options -->
+                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+                                <input type="radio" name="ticket" value="10" class="form-radio text-black">
+                                <div class="ml-4">
+                                    <div class="font-semibold">Alfama - 10€</div>
+                                    <div class="text-sm text-gray-600">Com Welcomedrink • Bilhete base • Limitado • 1px</div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+                                <input type="radio" name="ticket" value="12" class="form-radio text-black">
+                                <div class="ml-4">
+                                    <div class="font-semibold">Miradouro + 12€</div>
+                                    <div class="text-sm text-gray-600">Sem Welcomedrink • Bilhete com prioridade • 1px </div>
+                                </div>
+                            </label>
+                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+                                <input type="radio" name="ticket" value="15" class="form-radio text-black">
+                                <div class="ml-4">
+                                    <div class="font-semibold">DUO - 15€ (Plus one)</div>
+                                    <div class="text-sm text-gray-600">Sem 2 welcomedrinks • Bilhete com prioridade • 2px</div>
+                                </div>
+                            </label>
+                        </div>
+                    </section>
+                    
+                    <!-- Shipping Address -->
+                    <section class="bg-white p-6 rounded-lg shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-xl font-semibold">Informações Pessoais</h2>
+                        </div>
+                        <form id="checkoutForm" class="space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="primeiro_nome" class="block text-sm font-medium text-gray-700 mb-1">Primeiro Nome</label>
+                                    <input type="text" id="primeiro_nome" name="primeiro_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Pedro">
+                                    <p id="erro-primeiro-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o primeiro nome.</p>
+                                </div>
+                                <div>
+                                    <label for="segundo_nome" class="block text-sm font-medium text-gray-700 mb-1">Último Nome</label>
+                                    <input type="text" id="segundo_nome" name="segundo_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Sousa">
+                                    <p id="erro-segundo-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o último nome.</p>
+                                </div>
+                            </div>
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                <input type="email" id="email" name="email" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="exemplo@gmail.com">
+                                <p id="erro-email" class="text-red-500 text-sm mt-1 hidden">Por favor, insere um email válido.</p>
+                            </div>
+
+                            <!-- Switch para Dados de Faturação -->
+                            <div class="flex items-center mt-4">
+                                <input type="checkbox" id="toggleBilling" class="mr-2 w-4 h-4 text-black focus:ring-black border-gray-300 rounded">
+                                <label for="toggleBilling" class="text-sm text-gray-700">Adicionar dados de faturação</label>
+                            </div>
+
+                            <!-- Formulário de Dados de Faturação (inicialmente escondido) -->
+                            <div id="billingForm" class="mt-4 hidden">
+                                <h3 class="text-lg font-semibold mb-2">Dados de Faturação Completos</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="nome_faturacao" class="block text-sm font-medium text-gray-700 mb-1">Nome para Faturação</label>
+                                        <input type="text" id="nome_faturacao" name="nome_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Nome Completo">
+                                    </div>
+                                    <div>
+                                        <label for="nif" class="block text-sm font-medium text-gray-700 mb-1">NIF</label>
+                                        <input type="text" id="nif" name="nif_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="123456789">
+                                    </div>
+                                </div>
+                                <div class="mt-4">
+                                    <label for="endereco" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                                    <input type="text" id="endereco" name="morada_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Rua Exemplo, nº 123">
+                                </div>
+                            </div>
+                        </form>
+
+                    </section>
+
+                    <!-- Script para mostrar/esconder o formulário -->
+                    <script>
+                        const toggleBilling = document.getElementById('toggleBilling');
+                        const billingForm = document.getElementById('billingForm');
+
+                        toggleBilling.addEventListener('change', () => {
+                            if (toggleBilling.checked) {
+                                billingForm.classList.remove('hidden');
+                            } else {
+                                billingForm.classList.add('hidden');
+                            }
