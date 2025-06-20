@@ -1,124 +1,358 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt">
 
 <head>
   <meta charset="UTF-8" />
   <title>SOLLEC | 1º Edição | 2 de Maio de 2025 | LAGO LISBOA</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://unpkg.com/akar-icons-fonts"></script>
-  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
-
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-50">
-    <!-- Header with Progress Indicator -->
-    <header class="bg-white shadow-sm">
-        <div class="max-w-5xl mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-  
+  <!-- Header with Progress Indicator -->
+  <header class="bg-white shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-4">
+      <div class="flex items-center justify-between">
+        <img src="public/images/logo/LOGO_PRETO.png" alt="Logo" class="relative inset-0 mx-auto h-10 opacity-100 z-10">
+      </div>
+    </div>
+  </header>
 
-                <img src="/testing/assets/LOGO_PRETO.png" alt="Logo" class="relative inset-0 mx-auto h-10 opacity-100 z-10">
-              
-         
-                <!-- <div class="text-sm text-gray-600">solec@solec.pt</div> -->
+  <main class="max-w-5xl mx-auto px-4 py-8">
+    <form id="checkoutForm" method="POST" action="pagamento.html" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Checkout Form -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- Delivery Options -->
+        <section class="bg-white p-6 rounded-lg shadow-sm">
+          <h2 class="text-xl font-semibold mb-4">Tickets List 🎟️</h2>
+          <div id="ticketsContainer" class="space-y-4">
+            <!-- Tickets will be loaded here dynamically -->
+            <div class="text-center py-4 text-gray-500">
+              Carregando bilhetes disponíveis...
             </div>
+          </div>
+        </section>
+        
+        <!-- Personal Information -->
+        <section class="bg-white p-6 rounded-lg shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">Informações Pessoais</h2>
+          </div>
+          <div class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="primeiro_nome" class="block text-sm font-medium text-gray-700 mb-1">Primeiro Nome*</label>
+                <input type="text" id="primeiro_nome" name="primeiro_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Pedro" required>
+                <p id="erro-primeiro-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o primeiro nome.</p>
+              </div>
+              <div>
+                <label for="segundo_nome" class="block text-sm font-medium text-gray-700 mb-1">Último Nome*</label>
+                <input type="text" id="segundo_nome" name="segundo_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Sousa" required>
+                <p id="erro-segundo-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o último nome.</p>
+              </div>
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email*</label>
+              <input type="email" id="email" name="email" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="exemplo@gmail.com" required>
+              <p id="erro-email" class="text-red-500 text-sm mt-1 hidden">Por favor, insere um email válido.</p>
+            </div>
+            <div>
+              <label for="telefone" class="block text-sm font-medium text-gray-700 mb-1">Telefone*</label>
+              <input type="tel" id="telefone" name="telefone" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="912345678" required>
+              <p id="erro-telefone" class="text-red-500 text-sm mt-1 hidden">Por favor, insere um número de telefone válido.</p>
+            </div>
+
+            <!-- Billing Data Toggle -->
+            <div class="flex items-center mt-4">
+              <input type="checkbox" id="toggleBilling" name="fatura_dados" class="mr-2 w-4 h-4 text-black focus:ring-black border-gray-300 rounded">
+              <label for="toggleBilling" class="text-sm text-gray-700">Adicionar dados de faturação</label>
+            </div>
+
+            <!-- Billing Form (initially hidden) -->
+            <div id="billingForm" class="mt-4 hidden">
+              <h3 class="text-lg font-semibold mb-2">Dados de Faturação Completos</h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label for="nome_faturacao" class="block text-sm font-medium text-gray-700 mb-1">Nome para Faturação</label>
+                  <input type="text" id="nome_faturacao" name="nome_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Nome Completo">
+                </div>
+                <div>
+                  <label for="nif" class="block text-sm font-medium text-gray-700 mb-1">NIF</label>
+                  <input type="text" id="nif" name="nif_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="123456789">
+                </div>
+              </div>
+              <div class="mt-4">
+                <label for="endereco" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
+                <input type="text" id="endereco" name="morada_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Rua Exemplo, nº 123">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment Method -->
+        <section class="bg-white p-6 rounded-lg shadow-sm">
+          <h2 class="text-xl font-semibold mb-4">Método de Pagamento</h2>
+          <div class="space-y-4">
+            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+              <input type="radio" name="payment" value="mbway" class="form-radio text-black" required checked>
+              <div class="ml-4 flex items-center">
+                <img src="public/images/logo/mbway_logo.svg" alt="MB Way Logo" class="h-6 mr-3">
+                <div>
+                  <div class="font-semibold">MB Way</div>
+                  <div class="text-sm text-gray-600">Pagamento rápido e seguro</div>
+                </div>
+              </div>
+            </label>
+
+            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+              <input type="radio" name="payment" value="card" class="form-radio text-black">
+              <div class="ml-4 flex items-center">
+                <div class="flex space-x-2 mr-3">
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 7a2 2 0 0 1 2 2 2 2 0 0 1-2 2 2 2 0 0 1-2-2 2 2 0 0 1 2-2m0 13c-5.33 0-16-2.67-16-8v-6l16-3 16 3v6c0 5.33-10.67 8-16 8z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-semibold">Cartão de Crédito/Débito</div>
+                  <div class="text-sm text-gray-600">Visa, Mastercard, etc.</div>
+                </div>
+              </div>
+            </label>
+            <div id="mbwayFields" class="mt-4">
+              <label for="mbway_phone" class="block text-sm font-medium text-gray-700 mb-1">Telefone MB Way*</label>
+              <input type="tel" id="mbway_phone" name="mbway_phone" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="912345678">
+            </div>
+            <div id="cardFields" class="mt-4 hidden">
+              <!-- Card fields would go here -->
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="space-y-8">
+        <section class="bg-white p-6 rounded-lg shadow-sm sticky top-8">
+          <h2 class="text-xl font-semibold mb-4">Resumo da Encomenda</h2>
+          <div class="space-y-4">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Bilhete</span>
+              <span id="ticket-summary" class="font-medium">-</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Quantidade</span>
+              <span id="quantity-summary" class="font-medium">1</span>
+            </div>
+            <div class="border-t border-gray-200 my-2"></div>
+            <div class="flex justify-between text-lg font-semibold">
+              <span>Total</span>
+              <span id="total-summary">0€</span>
+            </div>
+            <button type="submit" class="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors">
+              Finalizar Compra
+            </button>
+            <p class="text-xs text-gray-500 mt-2">
+              Ao finalizar a compra, concorda com os nossos <a href="#" class="underline">Termos e Condições</a>.
+            </p>
+          </div>
+        </section>
+      </div>
+    </form>
+  </main>
+
+  <footer class="bg-white border-t mt-12 py-6">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="mb-4 md:mb-0">
+          <img src="public/images/logo/LOGO_PRETO.png" alt="Logo" class="h-8">
         </div>
-    </header>
+        <div class="text-sm text-gray-600">
+          <p>© 2025 SOLLEC. Todos os direitos reservados.</p>
+        </div>
+      </div>
+    </div>
+  </footer>
 
-    <main class="max-w-5xl mx-auto px-4 py-8">
-    <form id="checkoutForm" method="POST" action="/testing/events/sollec-1st-edition-lago-02-maio">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <!-- Checkout Form -->
-                <div class="lg:col-span-2 space-y-8">
-                    <!-- Delivery Options -->
-                    <section class="bg-white p-6 rounded-lg shadow-sm">
-                        <h2 class="text-xl font-semibold mb-4">Tickets List 🎟️</h2>
-                        <div class="space-y-4">
-                            <!-- Ticket Options -->
-                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
-                                <input type="radio" name="ticket" value="10" class="form-radio text-black">
-                                <div class="ml-4">
-                                    <div class="font-semibold">Alfama - 10€</div>
-                                    <div class="text-sm text-gray-600">Com Welcomedrink • Bilhete base • Limitado • 1px</div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
-                                <input type="radio" name="ticket" value="12" class="form-radio text-black">
-                                <div class="ml-4">
-                                    <div class="font-semibold">Miradouro + 12€</div>
-                                    <div class="text-sm text-gray-600">Sem Welcomedrink • Bilhete com prioridade • 1px </div>
-                                </div>
-                            </label>
-                            <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
-                                <input type="radio" name="ticket" value="15" class="form-radio text-black">
-                                <div class="ml-4">
-                                    <div class="font-semibold">DUO - 15€ (Plus one)</div>
-                                    <div class="text-sm text-gray-600">Sem 2 welcomedrinks • Bilhete com prioridade • 2px</div>
-                                </div>
-                            </label>
-                        </div>
-                    </section>
-                    
-                    <!-- Shipping Address -->
-                    <section class="bg-white p-6 rounded-lg shadow-sm">
-                        <div class="flex items-center justify-between mb-4">
-                            <h2 class="text-xl font-semibold">Informações Pessoais</h2>
-                        </div>
-                        <form id="checkoutForm" class="space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="primeiro_nome" class="block text-sm font-medium text-gray-700 mb-1">Primeiro Nome</label>
-                                    <input type="text" id="primeiro_nome" name="primeiro_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Pedro">
-                                    <p id="erro-primeiro-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o primeiro nome.</p>
-                                </div>
-                                <div>
-                                    <label for="segundo_nome" class="block text-sm font-medium text-gray-700 mb-1">Último Nome</label>
-                                    <input type="text" id="segundo_nome" name="segundo_nome" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Sousa">
-                                    <p id="erro-segundo-nome" class="text-red-500 text-sm mt-1 hidden">Por favor, preenche o último nome.</p>
-                                </div>
-                            </div>
-                            <div>
-                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                                <input type="email" id="email" name="email" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="exemplo@gmail.com">
-                                <p id="erro-email" class="text-red-500 text-sm mt-1 hidden">Por favor, insere um email válido.</p>
-                            </div>
+ <script>
+  // Toggle billing form
+  const toggleBilling = document.getElementById('toggleBilling');
+  const billingForm = document.getElementById('billingForm');
+  toggleBilling.addEventListener('change', () => {
+    billingForm.classList.toggle('hidden', !toggleBilling.checked);
+  });
 
-                            <!-- Switch para Dados de Faturação -->
-                            <div class="flex items-center mt-4">
-                                <input type="checkbox" id="toggleBilling" class="mr-2 w-4 h-4 text-black focus:ring-black border-gray-300 rounded">
-                                <label for="toggleBilling" class="text-sm text-gray-700">Adicionar dados de faturação</label>
-                            </div>
+  // Toggle payment method fields
+  const paymentMethods = document.querySelectorAll('input[name="payment"]');
+  const mbwayFields = document.getElementById('mbwayFields');
+  const cardFields = document.getElementById('cardFields');
 
-                            <!-- Formulário de Dados de Faturação (inicialmente escondido) -->
-                            <div id="billingForm" class="mt-4 hidden">
-                                <h3 class="text-lg font-semibold mb-2">Dados de Faturação Completos</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label for="nome_faturacao" class="block text-sm font-medium text-gray-700 mb-1">Nome para Faturação</label>
-                                        <input type="text" id="nome_faturacao" name="nome_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Nome Completo">
-                                    </div>
-                                    <div>
-                                        <label for="nif" class="block text-sm font-medium text-gray-700 mb-1">NIF</label>
-                                        <input type="text" id="nif" name="nif_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="123456789">
-                                    </div>
-                                </div>
-                                <div class="mt-4">
-                                    <label for="endereco" class="block text-sm font-medium text-gray-700 mb-1">Endereço</label>
-                                    <input type="text" id="endereco" name="morada_faturacao" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-black focus:outline-none" placeholder="Rua Exemplo, nº 123">
-                                </div>
-                            </div>
-                        </form>
+  paymentMethods.forEach(method => {
+    method.addEventListener('change', () => {
+      if (method.value === 'mbway') {
+        mbwayFields.classList.remove('hidden');
+        cardFields.classList.add('hidden');
+      } else {
+        mbwayFields.classList.add('hidden');
+        cardFields.classList.remove('hidden');
+      }
+    });
+  });
 
-                    </section>
+  // Carregar bilhetes da base de dados
+  async function loadTickets() {
+    try {
+      const response = await fetch('http://localhost/gerirbilhete.php');
+      const data = await response.json();
 
-                    <!-- Script para mostrar/esconder o formulário -->
-                    <script>
-                        const toggleBilling = document.getElementById('toggleBilling');
-                        const billingForm = document.getElementById('billingForm');
+      const container = document.getElementById('ticketsContainer');
+      container.innerHTML = '';
 
-                        toggleBilling.addEventListener('change', () => {
-                            if (toggleBilling.checked) {
-                                billingForm.classList.remove('hidden');
-                            } else {
-                                billingForm.classList.add('hidden');
-                            }
+      if (!data.success || data.bilhetes.length === 0) {
+        container.innerHTML = '<div class="text-center py-4 text-gray-500">Não há bilhetes disponíveis no momento</div>';
+        return;
+      }
+
+      data.bilhetes.forEach(ticket => {
+        if (ticket.Gratuito == 1) return;
+
+        const ticketHtml = `
+          <label class="flex items-center p-4 border rounded-lg cursor-pointer hover:border-black">
+            <input 
+              type="radio" 
+              name="ticket" 
+              value="${ticket.Preco}" 
+              data-id="${ticket.ID_Bilhetes}"
+              data-name="${ticket.NOME}"
+              data-type="${ticket.Tipo}"
+              class="form-radio text-black"
+              ${ticket.Quant_Disponivel <= 0 ? 'disabled' : ''}
+              required
+            >
+            <div class="ml-4">
+              <div class="font-semibold">
+                ${ticket.NOME} - ${ticket.Preco}€
+                ${ticket.Quant_Disponivel <= 0 ? '<span class="text-red-500 text-sm ml-2">(ESGOTADO)</span>' : ''}
+              </div>
+              <div class="text-sm text-gray-600">
+                ${ticket.Tipo} • Disponível: ${ticket.Quant_Disponivel} • Vendidos: ${ticket.Quant_Vendida}
+              </div>
+            </div>
+          </label>
+        `;
+        container.insertAdjacentHTML('beforeend', ticketHtml);
+      });
+
+      setupTicketListeners();
+    } catch (error) {
+      console.error('Erro ao carregar bilhetes:', error);
+      document.getElementById('ticketsContainer').innerHTML = `
+        <div class="text-center py-4 text-red-500">
+          Erro ao carregar bilhetes. Por favor, recarregue a página.
+        </div>
+      `;
+    }
+  }
+
+  // Atualizar resumo ao selecionar bilhete
+  function setupTicketListeners() {
+    const ticketRadios = document.querySelectorAll('input[name="ticket"]');
+    const ticketSummary = document.getElementById('ticket-summary');
+    const totalSummary = document.getElementById('total-summary');
+
+    ticketRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.checked) {
+          const value = radio.value;
+          const name = radio.dataset.name;
+          ticketSummary.textContent = `${name} - ${value}€`;
+          totalSummary.textContent = `${value}€`;
+        }
+      });
+    });
+  }
+
+  // Validação e envio do formulário
+  const form = document.getElementById('checkoutForm');
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    let isValid = true;
+    const requiredFields = form.querySelectorAll('[required]');
+    requiredFields.forEach(field => {
+      const errorElement = document.getElementById(`erro-${field.id}`);
+      if (!field.value.trim()) {
+        if (errorElement) errorElement.classList.remove('hidden');
+        field.classList.add('border-red-500');
+        isValid = false;
+      } else {
+        if (errorElement) errorElement.classList.add('hidden');
+        field.classList.remove('border-red-500');
+      }
+    });
+
+    if (!isValid) return;
+
+    const selectedTicket = document.querySelector('input[name="ticket"]:checked');
+    if (!selectedTicket) {
+      alert('Por favor, selecione um bilhete');
+      return;
+    }
+
+    const submitButton = form.querySelector('button[type="submit"]');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="flex items-center justify-center"><svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>Processing...</span>';
+
+    try {
+      const formData = {
+  ticket_id: selectedTicket.dataset.id,
+  cliente: {
+    nome: form.primeiro_nome.value + " " + form.segundo_nome.value,
+    email: form.email.value,
+    contacto: form.telefone.value,
+    nif: form.nif_faturacao?.value || '',
+    morada: form.morada_faturacao?.value || '',
+    pedido_fatura: form.toggleBilling.checked ? 1 : 0
+  },
+  payment_method: form.payment.value,
+  mbway_phone: form.mbway_phone?.value || ''
+
+      };
+
+      const response = await fetch('http://localhost/comprarbilhete.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        window.location.href = 'sucesso.html';
+      } else {
+        alert('Erro: ' + (result.message || 'Falha no processamento do pagamento.'));
+      }
+    } catch (error) {
+      console.error('Erro:', error);
+      alert('Erro no processamento do pagamento: ' + error.message);
+    } finally {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Finalizar Compra';
+    }
+  });
+
+  // Remover erro ao digitar novamente
+  const inputs = form.querySelectorAll('input');
+  inputs.forEach(input => {
+    input.addEventListener('input', () => {
+      input.classList.remove('border-red-500');
+      const errorElement = document.getElementById(`erro-${input.id}`);
+      if (errorElement) errorElement.classList.add('hidden');
+    });
+  });
+
+  // Carregar bilhetes no carregamento da página
+  document.addEventListener('DOMContentLoaded', loadTickets);
+</script>
+
+</body>
+</html>
