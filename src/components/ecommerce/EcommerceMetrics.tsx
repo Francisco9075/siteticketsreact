@@ -460,15 +460,6 @@ export default function EcommerceMetrics() {
             </p>
           )}
         </div>
-        
-        <button
-          onClick={fetchAllMetrics}
-          disabled={globalLoading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          <RefreshCw className={`w-4 h-4 ${globalLoading ? 'animate-spin' : ''}`} />
-          Atualizar Tudo
-        </button>
       </div>
 
       {/* Status Summary */}
@@ -521,61 +512,6 @@ export default function EcommerceMetrics() {
           retryType="tickets_sold"
         />
       </div>
-
-      {/* Success Message 
-      {successCount === 3 && (
-        <div className="p-4 bg-green-50 border border-green-200 rounded-lg dark:bg-green-900/20 dark:border-green-800">
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400" />
-            <p className="text-sm text-green-600 dark:text-green-400 font-medium">
-              Todas as métricas foram carregadas com sucesso
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Global Error Message 
-      {errorCount === 3 && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-lg dark:bg-red-900/20 dark:border-red-800">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400" />
-            <p className="text-sm text-red-600 dark:text-red-400 font-medium">
-              Erro ao carregar todas as métricas
-            </p>
-          </div>
-          <p className="text-xs text-red-600 dark:text-red-400 mt-1">
-            Verifique a conexão com o servidor e tente novamente.
-          </p>
-          <button 
-            onClick={fetchAllMetrics}
-            className="mt-2 text-sm text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-200 underline"
-            disabled={globalLoading}
-          >
-            Tentar novamente
-          </button>
-        </div>
-      )}
-      Debug Info - Remove this in production 
-      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg dark:bg-gray-900/20 dark:border-gray-700">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Debug Information:</h3>
-        <div className="space-y-1 text-xs text-gray-600 dark:text-gray-400 font-mono">
-          <p>🎯 <strong>Eventos Ativos:</strong> Count = {metrics.active_events.count} | Loading = {metrics.active_events.loading.toString()} | Error = {metrics.active_events.error || 'null'}</p>
-          <p>💰 <strong>Receita Total:</strong> Amount = {metrics.total_revenue.amount} | Loading = {metrics.total_revenue.loading.toString()} | Error = {metrics.total_revenue.error || 'null'}</p>
-          <p>🎫 <strong>Bilhetes Vendidos:</strong> Count = {metrics.tickets_sold.count} | Loading = {metrics.tickets_sold.loading.toString()} | Error = {metrics.tickets_sold.error || 'null'}</p>
-          <p>🌐 <strong>API Endpoints:</strong></p>
-          <ul className="ml-4 space-y-1">
-            <li>• Active Events: {endpoints.active_events}</li>
-            <li>• Total Revenue: {endpoints.total_revenue}</li>
-            <li>• Tickets Sold: {endpoints.tickets_sold}</li>
-            <li>• All Metrics: {endpoints.all}</li>
-          </ul>
-        </div>
-        <div className="mt-3 pt-2 border-t border-gray-200 dark:border-gray-600">
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            💡 <strong>Dica:</strong> Se o erro 500 persistir, verifique os logs do servidor PHP e certifique-se de que o arquivo active_events.php existe e não tem erros de sintaxe.
-          </p>
-        </div>
-      </div>*/}
     </div>
   );
 }
