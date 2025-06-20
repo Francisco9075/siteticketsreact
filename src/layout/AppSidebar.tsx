@@ -21,7 +21,6 @@ import {
   
 } from "../icons";
 import { useSidebar } from "../context/SidebarContext";
-import SidebarWidget from "./SidebarWidget";
 
 type NavItem = {
   name: string;
@@ -57,7 +56,7 @@ const navItems: NavItem[] = [
   {
     icon: <Cliente />,
     name: "Clientes",
-    subItems: [{ name: "Gerir Eventos", path: "/GerirClientes", pro: false },
+    subItems: [{ name: "Gerir Clientes", path: "/GerirClientes", pro: false },
     ],
   },
   {
@@ -339,7 +338,6 @@ const AppSidebar: React.FC = () => {
             </div>
           </div>
         </nav>
-        {isExpanded || isHovered || isMobileOpen ? <SidebarWidget /> : null}
       </div>
     </aside>
   );
