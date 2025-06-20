@@ -263,7 +263,7 @@ const PaymentProcessingPage = () => {
                   <CreditCard size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: '500' }}>Cartão de Crédito</div>
+                  <div className="font-medium text-black dark:text-white">Cartão de Crédito</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>Visa, Mastercard</div>
                 </div>
               </div>
@@ -282,7 +282,7 @@ const PaymentProcessingPage = () => {
                   <Smartphone size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: '500' }}>MBWay</div>
+                  <div className="font-medium text-black dark:text-white">MBWay</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>Pagamento móvel</div>
                 </div>
               </div>
@@ -301,7 +301,7 @@ const PaymentProcessingPage = () => {
                   <Receipt size={20} />
                 </div>
                 <div>
-                  <div style={{ fontWeight: '500' }}>Referência MB</div>
+                  <div className="font-medium text-black dark:text-white">Referência MB</div>
                   <div style={{ fontSize: '12px', color: '#64748b' }}>Multibanco</div>
                 </div>
               </div>
@@ -346,7 +346,7 @@ const PaymentProcessingPage = () => {
                 <tbody>
                   {transactions.map((transaction) => (
                     <tr key={transaction.ID_Vendas}>
-                      <td style={{ fontFamily: 'monospace', fontWeight: '500' }}>
+                      <td style={{ fontFamily: 'monospace', fontWeight: '500' }}>TXN
                         {transaction.ID_Vendas}
                       </td>
                       <td>{transaction.Data}</td>
@@ -401,7 +401,7 @@ const PaymentProcessingPage = () => {
               <div style={{ color: '#3b82f6', fontSize: '18px', fontWeight: '600' }}>15 de Junho, 2025</div>
             </div>
 
-            <h3 style={{ marginBottom: '16px', color: '#1e293b' }}>Histórico de Pagamentos</h3>
+            <h3 className="mb-4 text-gray-900 dark:text-gray-300">Histórico de Pagamentos</h3>
             <div>
               {paymentHistory.map((payment, index) => (
                 <div key={index} className="history-item">
