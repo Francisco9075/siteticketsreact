@@ -57,7 +57,7 @@ const navItems: NavItem[] = [
   {
     icon: <Cliente />,
     name: "Clientes",
-    subItems: [{ name: "Gerir Eventos", path: "/GerirClientes", pro: false },
+    subItems: [{ name: "Gerir Clientes", path: "/GerirClientes", pro: false },
     ],
   },
   {
