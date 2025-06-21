@@ -1,14 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Euro, TrendingUp, Users, Eye, Download, CreditCard, Calendar, Clock, CheckCircle, AlertCircle, XCircle, X } from 'lucide-react';
 
 const FinancialDashboard = ({ isDark = false }) => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
+  useEffect(() => {
+    const fetchTotalRevenue = async () => {
+      try {
+        const response = await fetch('http://localhost/total_revenue.php', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (data.successo) {
+          setTotalRevenue(parseFloat(data.data.total_revenue));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar receita total:', error);
+      }
+    };
+
+    fetchTotalRevenue();
+  }, []);
 
   // Dados mockados para demonstração
   const dashboardData = {
-    receitaTotal: 45750.80,
+    receitaTotal: totalRevenue,
     bilhetesVendidos: 523,
     eventosAtivos: 8,
     saldoDisponivel: 41175.72,
