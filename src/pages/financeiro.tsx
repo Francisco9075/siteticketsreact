@@ -253,12 +253,6 @@ const PaymentProcessingPage = () => {
                 className={`payment-method ${paymentMethods.creditCard ? 'active' : ''}`}
                 onClick={() => handlePaymentMethodChange('creditCard')}
               >
-                <input
-                  type="checkbox"
-                  className="payment-method-checkbox"
-                  checked={paymentMethods.creditCard}
-                  onChange={() => handlePaymentMethodChange('creditCard')}
-                />
                 <div className="payment-method-icon">
                   <CreditCard size={20} />
                 </div>
@@ -272,12 +266,6 @@ const PaymentProcessingPage = () => {
                 className={`payment-method ${paymentMethods.mbway ? 'active' : ''}`}
                 onClick={() => handlePaymentMethodChange('mbway')}
               >
-                <input
-                  type="checkbox"
-                  className="payment-method-checkbox"
-                  checked={paymentMethods.mbway}
-                  onChange={() => handlePaymentMethodChange('mbway')}
-                />
                 <div className="payment-method-icon">
                   <Smartphone size={20} />
                 </div>
@@ -291,12 +279,6 @@ const PaymentProcessingPage = () => {
                 className={`payment-method ${paymentMethods.referenceMB ? 'active' : ''}`}
                 onClick={() => handlePaymentMethodChange('referenceMB')}
               >
-                <input
-                  type="checkbox"
-                  className="payment-method-checkbox"
-                  checked={paymentMethods.referenceMB}
-                  onChange={() => handlePaymentMethodChange('referenceMB')}
-                />
                 <div className="payment-method-icon">
                   <Receipt size={20} />
                 </div>
@@ -332,7 +314,7 @@ const PaymentProcessingPage = () => {
               <table className="table">
                 <thead>
                   <tr>
-                    <th>ID Transação</th>
+                    <th>Transação</th>
                     <th>Data</th>
                     <th>Valor Total</th>
                     <th>Taxas</th>
@@ -432,6 +414,372 @@ const PaymentProcessingPage = () => {
           </div>
         </>
       )}
+
+      <style>{`
+        .payment-page {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 24px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          background: #f8fafc;
+          min-height: 100vh;
+        }
+
+        .page-header {
+          margin-bottom: 32px;
+        }
+
+        .page-title {
+          font-size: 28px;
+          font-weight: 700;
+          color: #1e293b;
+          margin: 0 0 8px 0;
+        }
+
+        .page-subtitle {
+          font-size: 16px;
+          color: #64748b;
+          margin: 0;
+        }
+
+        .tabs {
+          display: flex;
+          gap: 4px;
+          margin-bottom: 32px;
+          border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab {
+          padding: 12px 24px;
+          background: none;
+          border: none;
+          font-size: 14px;
+          font-weight: 500;
+          color: #64748b;
+          cursor: pointer;
+          border-bottom: 2px solid transparent;
+          transition: all 0.2s;
+        }
+
+        .tab.active {
+          color: #3b82f6;
+          border-bottom-color: #3b82f6;
+        }
+
+        .tab:hover {
+          color: #3b82f6;
+        }
+
+        .section {
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          margin-bottom: 24px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 20px;
+          font-weight: 600;
+          color: #1e293b;
+          margin: 0 0 24px 0;
+        }
+
+        .status-card {
+          background: #f0f9ff;
+          border: 1px solid #0ea5e9;
+          border-radius: 8px;
+          padding: 16px;
+          margin-bottom: 24px;
+        }
+
+        .status-message {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-weight: 500;
+          color: #0c4a6e;
+          margin-bottom: 8px;
+        }
+
+        .status-details {
+          font-size: 14px;
+          color: #0c4a6e;
+        }
+
+        .form-group {
+          margin-bottom: 20px;
+        }
+
+        .form-label {
+          display: block;
+          font-size: 14px;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 8px;
+        }
+
+        .form-input {
+          width: 100%;
+          padding: 12px;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          font-size: 14px;
+          transition: border-color 0.2s;
+          box-sizing: border-box;
+        }
+
+        .form-input:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .file-upload {
+          position: relative;
+        }
+
+        .file-upload-input {
+          position: absolute;
+          opacity: 0;
+          width: 100%;
+          height: 100%;
+          cursor: pointer;
+        }
+
+        .file-upload-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 12px;
+          border: 2px dashed #d1d5db;
+          border-radius: 6px;
+          font-size: 14px;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .file-upload:hover .file-upload-btn {
+          border-color: #3b82f6;
+          color: #3b82f6;
+        }
+
+        .payment-methods {
+          display: grid;
+          gap: 16px;
+        }
+
+        .payment-method {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 16px;
+          border: 2px solid #e5e7eb;
+          border-radius: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .payment-method:hover {
+          border-color: #3b82f6;
+        }
+
+        .payment-method.active {
+          border-color: #3b82f6;
+          background: #f0f9ff;
+        }
+
+        .payment-method-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          background: #f3f4f6;
+          border-radius: 8px;
+          color: #6b7280;
+        }
+
+        .payment-method.active .payment-method-icon {
+          background: #3b82f6;
+          color: white;
+        }
+
+        .table-container {
+          overflow-x: auto;
+          border-radius: 8px;
+          border: 1px solid #e5e7eb;
+        }
+
+        .table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .table th {
+          background: #f9fafb;
+          padding: 12px;
+          text-align: left;
+          font-weight: 600;
+          color: #374151;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table td {
+          padding: 12px;
+          border-bottom: 1px solid #f3f4f6;
+        }
+
+        .table tr:hover {
+          background: #f9fafb;
+        }
+
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 12px;
+          font-weight: 500;
+        }
+
+        .status-success {
+          background: #dcfce7;
+          color: #166534;
+        }
+
+        .status-warning {
+          background: #fef3c7;
+          color: #92400e;
+        }
+
+        .status-error {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 16px;
+          margin-bottom: 24px;
+        }
+
+        .stat-card {
+          background: #f8fafc;
+          padding: 20px;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .stat-value {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1e293b;
+          margin-bottom: 4px;
+        }
+
+        .stat-label {
+          font-size: 14px;
+          color: #64748b;
+        }
+
+        .history-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 16px 0;
+          border-bottom: 1px solid #f1f5f9;
+        }
+
+        .history-item:last-child {
+          border-bottom: none;
+        }
+
+        .history-date {
+          font-weight: 500;
+          color: #1e293b;
+        }
+
+        .history-amount {
+          font-size: 16px;
+          font-weight: 600;
+          color: #059669;
+        }
+
+        .legal-notice {
+          background: #fafafa;
+          padding: 20px;
+          border-radius: 8px;
+          margin-top: 24px;
+          border: 1px solid #e5e7eb;
+        }
+
+        .legal-notice h4 {
+          margin: 0 0 12px 0;
+          color: #374151;
+          font-size: 16px;
+        }
+
+        .legal-notice p {
+          margin: 8px 0;
+          color: #6b7280;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .legal-link {
+          display: inline-flex;
+          align-items: center;
+          color: #3b82f6;
+          text-decoration: none;
+        }
+
+        .legal-link:hover {
+          text-decoration: underline;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: 14px;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s;
+          border: none;
+        }
+
+        .btn-secondary {
+          background: #f3f4f6;
+          color: #374151;
+        }
+
+        .btn-secondary:hover {
+          background: #e5e7eb;
+        }
+
+        @media (max-width: 768px) {
+          .payment-page {
+            padding: 16px;
+          }
+          
+          .stats-grid {
+            grid-template-columns: 1fr;
+          }
+          
+          .table-container {
+            font-size: 14px;
+          }
+        }
+      `}</style>
     </div>
   );
 };
