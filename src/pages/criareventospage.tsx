@@ -1,6 +1,6 @@
 import PageBreadcrumb from "../components/common/PageBreadCrumb";
 import PageMeta from "../components/common/PageMeta";
-import Criareventos from "../components/form/form-elements/CriarEvento";
+import Criareventos from "../components/form/form-elements/criareventos";
 
 
 
