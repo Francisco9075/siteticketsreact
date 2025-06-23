@@ -1,15 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { EyeCloseIcon, EyeIcon } from "../../icons";
-import { Link } from "react-router";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
-import Checkbox from "../form/input/Checkbox";
 import Button from "../ui/button/Button";
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -40,13 +38,8 @@ export default function SignInForm() {
       const data = await response.json();
 
       if (data.success) {
-        if (isChecked) {
           localStorage.setItem("keepLoggedIn", "true");
           localStorage.setItem("userEmail", email);
-        } else {
-          localStorage.removeItem("keepLoggedIn");
-          localStorage.removeItem("userEmail");
-        }
         navigate("/");
       } else {
         setError(data.message || "Email ou senha incorretos.");
@@ -129,31 +122,11 @@ export default function SignInForm() {
                   </div>
                 </div>
               )}
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Checkbox checked={isChecked} onChange={setIsChecked} />
-                  <span className="block font-normal text-gray-700 text-theme-sm dark:text-gray-400">
-                    Keep me logged in
-                  </span>
-                </div>
-              </div>
               <div>
                 <Button type="submit" className="w-full btn-lgin" size="sm">
                   Sign in
                 </Button>
               </div>
-            </div>
-            <div className="mt-5">
-              <p className="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
-                Ainda não tens conta? {""}
-                <Link
-                  to="/signup"
-                  className="text-brand-500 hover:text-brand-600 dark:text-brand-400"
-                >
-                  Sign Up
-                </Link>
-              </p>
             </div>
           </form>
         </div>
