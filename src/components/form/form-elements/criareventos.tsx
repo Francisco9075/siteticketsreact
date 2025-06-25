@@ -42,7 +42,7 @@ export default function CriarEventos() {
     }
 
     try {
-      const res = await fetch("http://localhost/criareventos.php", {
+      const res = await fetch("http://localhost/api.php?action=criar_evento", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
