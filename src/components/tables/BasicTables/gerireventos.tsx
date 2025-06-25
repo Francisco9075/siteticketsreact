@@ -37,10 +37,10 @@ export default function GerirEventos() {
 
   function buscarEventos() {
     setCarregando(true);
-    fetch("http://localhost/gerireventos.php")
+    fetch("http://localhost/api.php?action=gerir_eventos")
       .then((res) => res.json())
       .then((data) => {
-        if (data.successo) {
+        if (data.sucesso) {
           setEventos(data.eventos);
         } else {
           console.error("Erro ao buscar eventos:", data.message);
@@ -61,7 +61,7 @@ export default function GerirEventos() {
 
     if (!confirm("Deseja realmente excluir este evento?")) return;
 
-    fetch("http://localhost/apagareventos.php", {
+    fetch("http://localhost/api.php?action=apagar_evento", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -108,7 +108,7 @@ export default function GerirEventos() {
       cartaz_do_evento: editandoEvento.Cartaz_do_evento,
     };
 
-    fetch("http://localhost/editareventos.php", {
+    fetch("http://localhost/api.php?action=editar_evento", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
