@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Euro, TrendingUp, Users, Eye, Download, CreditCard, Calendar, Clock, CheckCircle, AlertCircle, XCircle, X } from 'lucide-react';
+import { Euro, TrendingUp, Users, Eye, Download, CreditCard, Calendar, Clock, CheckCircle, AlertCircle, XCircle, X, RefreshCw } from 'lucide-react';
 
 const FinancialDashboard = ({ isDark = false }) => {
   const [showTransactionModal, setShowTransactionModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [soldTickets, setTotalTickets] = useState(0);
+  const [activeEvents, setTotalEvents] = useState(0);
+  const [carregando, setCarregando] = useState(false);
 
-  useEffect(() => {
-    const fetchTotalRevenue = async () => {
+  const fetchTotalRevenue = async () => {
       try {
         const response = await fetch('http://localhost/total_revenue.php', {
           method: 'GET',
@@ -25,14 +27,68 @@ const FinancialDashboard = ({ isDark = false }) => {
       }
     };
 
+    const fetchTotalTickets = async () => {
+      try {
+        const response = await fetch('http://localhost/tickets_sold.php', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (data.successo) {
+          setTotalTickets(parseInt(data.data.total_tickets));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar bilhetes totais:', error);
+      }
+    };
+
+    const fetchTotalEvents = async () => {
+      try {
+        const response = await fetch('http://localhost/active_events.php', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (data.successo) {
+          setTotalEvents(parseInt(data.data.active_events));
+        }
+      } catch (error) {
+        console.error('Erro ao buscar eventos totais:', error);
+      }
+    };
+
+    const handleRefreshDashboard = async () => {
+      setCarregando(true);
+      await Promise.all([
+        fetchTotalRevenue(),
+        fetchTotalTickets(),
+        fetchTotalEvents()
+      ]);
+      setCarregando(false);
+    };
+
+
+  useEffect(() => {
     fetchTotalRevenue();
+  }, []);
+
+  useEffect(() => {
+    fetchTotalTickets();
+  }, []);
+
+  useEffect(() => {
+    fetchTotalEvents();
   }, []);
 
   // Dados mockados para demonstração
   const dashboardData = {
     receitaTotal: totalRevenue,
-    bilhetesVendidos: 523,
-    eventosAtivos: 8,
+    bilhetesVendidos: soldTickets,
+    eventosAtivos: activeEvents,
     saldoDisponivel: 41175.72,
     ultimaAtualizacao: '2 minutos'
   };
@@ -164,6 +220,7 @@ const FinancialDashboard = ({ isDark = false }) => {
           </p>
         </div>
 
+
         {/* Secção 1 - Visão Geral */}
         <div className="section">
           <div className="section-title">
@@ -171,6 +228,17 @@ const FinancialDashboard = ({ isDark = false }) => {
             Visão Geral
           </div>
           
+          <button
+            onClick={handleRefreshDashboard}
+            disabled={carregando}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${carregando ? 'animate-spin' : ''}`} />
+            {carregando ? 'A atualizar...' : 'Atualizar'}
+          </button>
+
+          <br />
+
           <div className="stats-grid">
             <div className="stat-card">
               <div className="stat-value">{formatCurrency(dashboardData.receitaTotal)}</div>

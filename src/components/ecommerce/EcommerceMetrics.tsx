@@ -451,9 +451,6 @@ export default function EcommerceMetrics() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Métricas do Dashboard
-          </h2>
           {lastUpdated && (
             <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
               Última atualização: {lastUpdated.toLocaleTimeString('pt-PT')}
