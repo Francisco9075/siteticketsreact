@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ComponentCard from "../../common/ComponentCard";
 import Label from "../Label";
 import Input from "../input/InputField";
@@ -8,14 +8,28 @@ import DatePicker from "../date-picker.tsx";
 import Button from "../../../components/ui/button/Button";
 import Checkbox from "../input/Checkbox";
 
+interface Event {
+  id: number;
+  nome: string;
+}
+
+interface TicketType {
+  value: string;
+  label: string;
+}
+
 export default function Criarbilhetes() {
-  const options = [
-    { value: "marketing", label: "Marketing" },
-    { value: "template", label: "Template" },
-    { value: "development", label: "Development" },
+  const ticketTypes: TicketType[] = [
+    { value: "standard", label: "Standard" },
+    { value: "vip", label: "VIP" },
+    { value: "premium", label: "Premium" },
+    { value: "early_bird", label: "Early Bird" },
   ];
 
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
   const [form, setForm] = useState({
+    evento_id: "",
     nome: "",
     tipo: "",
     preco: "",
@@ -26,14 +40,47 @@ export default function Criarbilhetes() {
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [createdTicket, setCreatedTicket] = useState(null);
+  const [createdTicket, setCreatedTicket] = useState<any>(null);
 
-  const handleSelectChange = (value: string) => {
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const res = await fetch("http://localhost/criarbilhete.php", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          setEvents(data);
+        } else {
+          console.error("Erro ao buscar eventos");
+        }
+      } catch (error) {
+        console.error("Erro de conexão:", error);
+      } finally {
+        setLoadingEvents(false);
+      }
+    };
+    
+    fetchEvents();
+  }, []);
+
+  const handleEventChange = (value: string) => {
+    setForm((prev) => ({ ...prev, evento_id: value }));
+  };
+
+  const handleTicketTypeChange = (value: string) => {
     setForm((prev) => ({ ...prev, tipo: value }));
   };
 
   const handleSubmit = async () => {
-    // Validation
+    if (!form.evento_id) {
+      alert("Por favor, selecione o evento");
+      return;
+    }
     if (!form.nome.trim()) {
       alert("Por favor, insira o nome do bilhete");
       return;
@@ -72,8 +119,8 @@ export default function Criarbilhetes() {
         setCreatedTicket(result);
         alert(result.message || "Bilhete criado com sucesso!");
         
-        // Reset form
-        setForm({
+        setForm(prev => ({
+          ...prev,
           nome: "",
           tipo: "",
           preco: "",
@@ -81,7 +128,7 @@ export default function Criarbilhetes() {
           data: "",
           hora: "",
           gratuito: false,
-        });
+        }));
       } else {
         alert(result.erro || result.message || "Erro ao criar bilhete");
       }
@@ -93,7 +140,7 @@ export default function Criarbilhetes() {
     }
   };
 
-  const copyToClipboard = (text) => {
+  const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text).then(() => {
       alert("Link copiado para a área de transferência!");
     }).catch(() => {
@@ -104,6 +151,21 @@ export default function Criarbilhetes() {
   return (
     <div>
       <div className="space-y-6">
+        <div>
+          <Label>Evento</Label>
+          <Select
+            options={events.map(event => ({
+              value: event.id.toString(),
+              label: event.nome
+            }))}
+            placeholder={loadingEvents ? "Carregando eventos..." : "Selecione um evento"}
+            onChange={handleEventChange}
+            value={form.evento_id}
+            disabled={loadingEvents}
+            className="dark:bg-dark-900"
+          />
+        </div>
+
         <div>
           <Label htmlFor="nome">Nome do Bilhete</Label>
           <Input
@@ -116,21 +178,12 @@ export default function Criarbilhetes() {
         </div>
 
         <div>
-          <Label>Evento</Label>
+          <Label>Tipo de Bilhete</Label>
           <Select
-            options={options}
-            placeholder="Selecione uma opção"
-            onChange={handleSelectChange}
-            className="dark:bg-dark-900"
-          />
-        </div>
-
-        <div>
-          <Label>Tipo de Bilhetes</Label>
-          <Select
-            options={options}
-            placeholder="Selecione uma opção"
-            onChange={handleSelectChange}
+            options={ticketTypes}
+            placeholder="Selecione um tipo"
+            onChange={handleTicketTypeChange}
+            value={form.tipo}
             className="dark:bg-dark-900"
           />
         </div>
@@ -197,13 +250,12 @@ export default function Criarbilhetes() {
             className="butaobilhete" 
             size="md" 
             variant="primary"
-            disabled={isSubmitting}
+            disabled={isSubmitting || loadingEvents}
           >
             {isSubmitting ? "Criando..." : "Publicar"}
           </Button>
         </div>
 
-        {/* Success Message with Payment Page Link */}
         {createdTicket && (
           <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
             <h3 className="text-lg font-semibold text-green-800 mb-2">

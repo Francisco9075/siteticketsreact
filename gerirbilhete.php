@@ -10,7 +10,6 @@ header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-
 // Lidar com requisições OPTIONS (preflight)
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -36,6 +35,12 @@ try {
         // Validar campos obrigatórios
         if (!isset($data['nome'], $data['tipo'], $data['preco'], $data['id_evento'])) {
             echo json_encode(['success' => false, 'message' => 'Dados incompletos']);
+            exit();
+        }
+
+        // Validar id_evento como número
+        if (!is_numeric($data['id_evento'])) {
+            echo json_encode(['success' => false, 'message' => 'ID do evento inválido']);
             exit();
         }
 
@@ -80,11 +85,11 @@ try {
             Data,
             Gratuito,
             payment_page_url,
-            EVENTOS.NOME AS ID_Evento,
-            Estado_Bilhete.Nome AS ID_Estado_Bilhete
+            EVENTOS.NOME AS Evento_Nome,
+            Estado_Bilhete.Nome AS Estado_Nome
         FROM BILHETES
-        INNER JOIN EVENTOS ON BILHETES.ID_Evento = EVENTOS.ID_Evento
-        INNER JOIN Estado_Bilhete ON BILHETES.ID_Estado_Bilhete = Estado_Bilhete.ID_Estado_Bilhete
+        LEFT JOIN EVENTOS ON BILHETES.ID_Evento = EVENTOS.ID_Evento
+        LEFT JOIN Estado_Bilhete ON BILHETES.ID_Estado_Bilhete = Estado_Bilhete.ID_Estado_Bilhete
         ORDER BY ID_Bilhetes DESC";
 
         $stmt = $pdo->query($sql);
