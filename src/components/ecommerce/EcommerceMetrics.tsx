@@ -7,7 +7,8 @@ import {
   RefreshCw,
   AlertCircle,
   Calendar,
-  CheckCircle
+  CheckCircle,
+  TicketIcon
 } from "lucide-react";
 
 // Mock Badge component since it's not available
@@ -505,7 +506,7 @@ export default function EcommerceMetrics() {
           title="Bilhetes Vendidos"
           value={formatNumber(metrics.tickets_sold.count, metrics.tickets_sold.loading)}
           metric={metrics.tickets_sold}
-          icon={Users}
+          icon={TicketIcon}
           retryType="tickets_sold"
         />
       </div>
