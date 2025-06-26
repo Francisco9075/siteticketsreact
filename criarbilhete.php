@@ -1,4 +1,4 @@
-porque esta a dar erro a criar a pagina do bilhete:<?php
+<?php
 header("Access-Control-Allow-Origin: http://localhost:5173");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -24,7 +24,7 @@ if ($conn->connect_error) {
 
 // Handle GET request to fetch events
 if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $sql = "SELECT ID_Evento as id, NOME as nome FROM EVENTOS ORDER BY NOME";
+    $sql = "SELECT ID_Evento as id, NOME as nome FROM EVENTOS ";
     $result = $conn->query($sql);
     
     if ($result) {
@@ -42,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = json_decode(file_get_contents("php://input"), true);
+
 
     if (!$data) {
         http_response_code(400);

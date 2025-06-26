@@ -7,7 +7,7 @@ import {
   TableRow,
 } from "../../ui/table";
 import Badge from "../../ui/badge/Badge";
-import { X } from "lucide-react";
+import { X, RefreshCw, CheckCircle, AlertCircle, XCircle, AlertTriangle } from "lucide-react";
 
 interface Evento {
   ID_Evento: number;
@@ -25,14 +25,169 @@ interface Evento {
   Termos_aceites: number;
 }
 
+interface Toast {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
+  title: string;
+  message: string;
+}
+
+interface ConfirmModal {
+  isOpen: boolean;
+  title: string;
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  type: 'danger' | 'warning' | 'info';
+}
+
+function ToastContainer({ toasts, removeToast }: { toasts: Toast[], removeToast: (id: string) => void }) {
+  return (
+    <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[99999] pointer-events-none p-4">
+      <div className="space-y-3">
+        {toasts.map((toast) => (
+          <div
+            key={toast.id}
+            className={`
+              flex items-center p-6 rounded-xl shadow-2xl min-w-96 max-w-md pointer-events-auto
+              animate-in fade-in slide-in-from-top-4 duration-300
+              ${toast.type === 'success' ? 'bg-green-500 text-white' : ''}
+              ${toast.type === 'error' ? 'bg-red-500 text-white' : ''}
+              ${toast.type === 'warning' ? 'bg-yellow-500 text-white' : ''}
+              ${toast.type === 'info' ? 'bg-blue-500 text-white' : ''}
+            `}
+          >
+            <div className="flex-shrink-0 mr-4">
+              {toast.type === 'success' && <CheckCircle className="w-6 h-6 text-white" />}
+              {toast.type === 'error' && <XCircle className="w-6 h-6 text-white" />}
+              {toast.type === 'warning' && <AlertTriangle className="w-6 h-6 text-white" />}
+              {toast.type === 'info' && <AlertCircle className="w-6 h-6 text-white" />}
+            </div>
+            <div className="flex-1">
+              <h4 className="font-bold text-lg text-white">{toast.title}</h4>
+              <p className="text-sm mt-1 text-white/90">{toast.message}</p>
+            </div>
+            <button
+              onClick={() => removeToast(toast.id)}
+              className="flex-shrink-0 ml-4 text-white/80 hover:text-white transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ConfirmationModal({ modal, onConfirm, onCancel }: { 
+  modal: ConfirmModal, 
+  onConfirm: () => void, 
+  onCancel: () => void 
+}) {
+  if (!modal.isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 flex items-center justify-center z-[9998] p-4 bg-black/50">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-2xl">
+        <div className="flex items-center mb-4">
+          <div className={`
+            flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center mr-3
+            ${modal.type === 'danger' ? 'bg-red-100 text-red-600' : ''}
+            ${modal.type === 'warning' ? 'bg-yellow-100 text-yellow-600' : ''}
+            ${modal.type === 'info' ? 'bg-blue-100 text-blue-600' : ''}
+          `}>
+            {modal.type === 'danger' && <XCircle className="w-6 h-6" />}
+            {modal.type === 'warning' && <AlertTriangle className="w-6 h-6" />}
+            {modal.type === 'info' && <AlertCircle className="w-6 h-6" />}
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{modal.title}</h3>
+        </div>
+        
+        <p className="text-gray-600 dark:text-gray-300 mb-6">{modal.message}</p>
+        
+        <div className="flex justify-end space-x-3">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={onConfirm}
+            className={`
+              px-4 py-2 text-white rounded-lg transition-colors
+              ${modal.type === 'danger' ? 'bg-red-600 hover:bg-red-700' : ''}
+              ${modal.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
+              ${modal.type === 'info' ? 'bg-blue-600 hover:bg-blue-700' : ''}
+            `}
+          >
+            Confirmar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function GerirEventos() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [carregando, setCarregando] = useState(true);
   const [editandoEvento, setEditandoEvento] = useState<Evento | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [toasts, setToasts] = useState<Toast[]>([]);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModal>({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    onCancel: () => {},
+    type: 'info'
+  });
+
+  const addToast = (type: Toast['type'], title: string, message: string) => {
+    const id = Date.now().toString();
+    const newToast: Toast = { id, type, title, message };
+    setToasts(prev => [...prev, newToast]);
+    
+    setTimeout(() => {
+      removeToast(id);
+    }, 5000);
+  };
+
+  const removeToast = (id: string) => {
+    setToasts(prev => prev.filter(toast => toast.id !== id));
+  };
+
+  const showConfirmModal = (
+    title: string, 
+    message: string, 
+    onConfirm: () => void, 
+    type: ConfirmModal['type'] = 'info'
+  ) => {
+    setConfirmModal({
+      isOpen: true,
+      title,
+      message,
+      onConfirm,
+      onCancel: () => setConfirmModal(prev => ({ ...prev, isOpen: false })),
+      type
+    });
+  };
 
   useEffect(() => {
     buscarEventos();
+  }, []);
+
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        buscarEventos();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   function buscarEventos() {
@@ -42,45 +197,62 @@ export default function GerirEventos() {
       .then((data) => {
         if (data.sucesso) {
           setEventos(data.eventos);
+          if (data.eventos.length === 0) {
+            addToast('info', 'Sem eventos', 'Nenhum evento foi encontrado no sistema.');
+          }
         } else {
-          console.error("Erro ao buscar eventos:", data.message);
+          addToast('error', 'Erro ao carregar', 'Não foi possível carregar os eventos. Tente novamente.');
         }
         setCarregando(false);
       })
       .catch((err) => {
         console.error("Erro na requisição:", err);
+        addToast('error', 'Erro de conexão', 'Falha na comunicação com o servidor. Verifique sua conexão.');
         setCarregando(false);
       });
   }
 
   function handleDelete(id: number) {
     if (!id) {
-      alert("ID inválido para exclusão");
+      addToast('error', 'Erro', 'ID inválido para exclusão do evento.');
       return;
     }
 
-    if (!confirm("Deseja realmente excluir este evento?")) return;
-
-    fetch("http://localhost/api.php?action=apagar_evento", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    showConfirmModal(
+      'Excluir evento',
+      'Tem certeza que deseja excluir este evento? Esta ação não pode ser desfeita.',
+      () => {
+        fetch("http://localhost/api.php?action=apagar_evento", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id_evento: id }),
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error('Erro na resposta do servidor');
+            }
+            return res.json();
+          })
+          .then((data) => {
+            if (data.sucesso) {
+              setEventos((prev) => prev.filter((e) => e.ID_Evento !== id));
+              addToast('success', 'Sucesso!', 'Evento excluído com sucesso.');
+            } else {
+              addToast('error', 'Erro ao excluir', data.erro || 'Ocorreu um erro inesperado.');
+            }
+          })
+          .catch((error) => {
+            console.error("Erro na exclusão:", error);
+            addToast('error', 'Erro de conexão', 'Falha ao comunicar com o servidor para excluir o evento.');
+          })
+          .finally(() => {
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          });
       },
-      body: JSON.stringify({ id_evento: id }),
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.sucesso) {
-          setEventos((prev) => prev.filter((e) => e.ID_Evento !== id));
-          alert("Evento excluído com sucesso!");
-        } else {
-          alert("Erro ao excluir evento: " + (data.erro || "Erro desconhecido"));
-        }
-      })
-      .catch((error) => {
-        console.error("Erro na exclusão:", error);
-        alert("Erro de conexão ao excluir evento");
-      });
+      'danger'
+    );
   }
 
   function handleEdit(evento: Evento) {
@@ -89,6 +261,17 @@ export default function GerirEventos() {
 
   function handleSave() {
     if (!editandoEvento) return;
+
+    // Verificar se houve alterações
+    const eventoOriginal = eventos.find(e => e.ID_Evento === editandoEvento.ID_Evento);
+    const houveAlteracoes = eventoOriginal && Object.keys(eventoOriginal).some(
+      key => eventoOriginal[key as keyof Evento] !== editandoEvento[key as keyof Evento]
+    );
+
+    if (!houveAlteracoes) {
+      addToast('warning', 'Sem alterações', 'Nenhuma alteração foi feita no evento.');
+      return;
+    }
 
     setSalvando(true);
 
@@ -125,15 +308,15 @@ export default function GerirEventos() {
             )
           );
           setEditandoEvento(null);
-          alert("Evento atualizado com sucesso!");
+          addToast('success', 'Sucesso!', 'Evento atualizado com sucesso.');
         } else {
-          alert("Erro ao atualizar evento: " + (data.erro || "Erro desconhecido"));
+          addToast('error', 'Erro ao salvar', data.erro || 'Ocorreu um erro ao atualizar o evento.');
         }
       })
       .catch((error) => {
         setSalvando(false);
         console.error("Erro ao salvar:", error);
-        alert("Erro de conexão ao salvar evento");
+        addToast('error', 'Erro de conexão', 'Falha ao comunicar com o servidor para salvar as alterações.');
       });
   }
 
@@ -145,7 +328,6 @@ export default function GerirEventos() {
     });
   }
 
-  // Map ID_Estado_Evento to display text
   const getEstadoText = (id: number) => {
     const estados = {
       1: "Ativo",
@@ -155,7 +337,6 @@ export default function GerirEventos() {
     return estados[id as keyof typeof estados] || "Desconhecido";
   };
 
-  // Map ID_Categoria to display text
   const getCategoriaText = (id: number) => {
     const categorias = {
       1: "Música",
@@ -167,15 +348,39 @@ export default function GerirEventos() {
 
   return (
     <>
-      <h3 className="mb-4 font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
-        Gestão de Eventos
-      </h3>
+      <ToastContainer toasts={toasts} removeToast={removeToast} />
+      
+      <ConfirmationModal 
+        modal={confirmModal}
+        onConfirm={confirmModal.onConfirm}
+        onCancel={confirmModal.onCancel}
+      />
+
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
+          Gestão de Eventos
+        </h3>
+        <button
+          onClick={buscarEventos}
+          disabled={carregando}
+          className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${carregando ? 'animate-spin' : ''}`} />
+          Atualizar
+        </button>
+      </div>
+
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] mt-6">
         <div className="max-w-full overflow-x-auto">
           {carregando ? (
-            <p className="text-gray-500 p-4">A carregar eventos...</p>
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+              <span className="ml-3 text-gray-500">A carregar eventos...</span>
+            </div>
           ) : eventos.length === 0 ? (
-            <p className="text-red-500 p-4">Nenhum evento encontrado.</p>
+            <div className="text-center py-8">
+              <p className="text-gray-500">Nenhum evento encontrado.</p>
+            </div>
           ) : (
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
@@ -307,9 +512,8 @@ export default function GerirEventos() {
         </div>
       </div>
 
-      {/* Modal de Edição */}
       {editandoEvento && (
-        <div className="fixed inset-0 flex items-center justify-center z-50 p-4 bg-black/30">
+        <div className="fixed inset-0 flex items-center justify-center z-[9997] p-4 bg-black/30">
           <div className="pointer-events-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -500,9 +704,10 @@ export default function GerirEventos() {
               </button>
               <button
                 onClick={handleSave}
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2"
                 disabled={salvando}
               >
+                {salvando && <RefreshCw className="w-4 h-4 animate-spin" />}
                 {salvando ? "Salvando..." : "Salvar Alterações"}
               </button>
             </div>
