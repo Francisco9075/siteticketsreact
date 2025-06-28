@@ -358,7 +358,7 @@ export default function Criarbilhetes() {
             id="quantidade"
             value={form.quantidade}
             onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
-            placeholder="Número de bilhetes disponíveis"
+            placeholder="Número de bilhetes totais"
           />
         </div>
 
