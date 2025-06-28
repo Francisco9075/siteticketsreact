@@ -16,7 +16,6 @@ interface Bilhete {
   Quant_Disponivel: number;
   Quant_Vendida: number;
   Preco: number;
-  Data: string;
   Gratuito: boolean;
   payment_page_url: string;
   Evento_Nome: string;
@@ -271,7 +270,6 @@ export default function GerirBilhetes() {
     formData.append('quant_disponivel', editandoBilhete.Quant_Disponivel.toString());
     formData.append('quant_vendida', editandoBilhete.Quant_Vendida.toString());
     formData.append('preco', editandoBilhete.Preco.toString());
-    formData.append('data', editandoBilhete.Data);
     formData.append('gratuito', editandoBilhete.Gratuito ? '1' : '0');
 
     fetch("http://localhost/editarbilhete.php", {
@@ -380,7 +378,6 @@ export default function GerirBilhetes() {
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Disponível</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Vendida</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Preço</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Data</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Gratuito</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Evento</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Estado</TableCell>
@@ -397,7 +394,6 @@ export default function GerirBilhetes() {
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       {b.Preco !== null && b.Preco !== undefined ? Number(b.Preco).toFixed(2) + "€" : "-"}
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Data}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       <Badge color={b.Gratuito ? "success" : "error"}>{b.Gratuito ? "Sim" : "Não"}</Badge>
                     </TableCell>
@@ -500,15 +496,6 @@ export default function GerirBilhetes() {
                     step="0.01"
                     value={editandoBilhete.Preco}
                     onChange={(e) => handleInputChange('Preco', parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Data</label>
-                  <input
-                    type="date"
-                    value={editandoBilhete.Data}
-                    onChange={(e) => handleInputChange('Data', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
