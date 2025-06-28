@@ -21,6 +21,7 @@ interface Bilhete {
   Evento_Nome: string;
   Estado_Nome: string;
   ID_Estado_Bilhete: number;
+  Desconto: number
 }
 
 interface Toast {
@@ -193,6 +194,18 @@ export default function GerirBilhetes() {
   { id: 3, nome: "Vendido" }
   ];
 
+  const quantDesconto = [
+  { id: 0, nome: "0%" },
+  { id: 10, nome: "10%" },
+  { id: 20, nome: "20%" },
+  { id: 30, nome: "30%" },
+  { id: 40, nome: "40%" },
+  { id: 50, nome: "50%" },
+  { id: 60, nome: "60%" },
+  { id: 70, nome: "70%" },
+  { id: 80, nome: "80%" },
+  { id: 90, nome: "90%" }
+  ];
 
   function buscarBilhetes() {
     setCarregando(true);
@@ -275,13 +288,20 @@ export default function GerirBilhetes() {
         bilheteOriginal.NOME !== editandoBilhete.NOME ||
         bilheteOriginal.Quant_Total !== editandoBilhete.Quant_Total ||
         bilheteOriginal.Quant_Vendida !== editandoBilhete.Quant_Vendida ||
-        bilheteOriginal.ID_Estado_Bilhete !== editandoBilhete.ID_Estado_Bilhete
+        bilheteOriginal.ID_Estado_Bilhete !== editandoBilhete.ID_Estado_Bilhete ||
+        bilheteOriginal.Desconto !== editandoBilhete.Desconto
       )
     );
 
-
     if (!houveAlteracoes) {
       addToast('warning', 'Sem alterações', 'Nenhuma alteração foi feita no bilhete.');
+      setEditandoBilhete(null); // Fecha o modal de edição
+      return;
+    }
+
+    // Validar que os campos obrigatórios estão preenchidos
+    if (!editandoBilhete.ID_Estado_Bilhete || editandoBilhete.Desconto === undefined || editandoBilhete.Desconto === null) {
+      addToast('error', 'Dados inválidos', 'Por favor, selecione um estado e um desconto válidos.');
       return;
     }
 
@@ -292,7 +312,8 @@ export default function GerirBilhetes() {
     formData.append('nome', editandoBilhete.NOME);
     formData.append('quant_total', editandoBilhete.Quant_Total.toString());
     formData.append('quant_vendida', editandoBilhete.Quant_Vendida.toString());
-    formData.append('estado_id', editandoBilhete.ID_Estado_Bilhete?.toString() || '');
+    formData.append('estado_id', editandoBilhete.ID_Estado_Bilhete.toString());
+    formData.append('desconto', editandoBilhete.Desconto.toString());
 
     fetch("http://localhost/editarbilhete.php", {
       method: "POST",
@@ -324,7 +345,7 @@ export default function GerirBilhetes() {
     if (!editandoBilhete) return;
     setEditandoBilhete({
       ...editandoBilhete,
-      [field]: value
+      [field]: field === 'Desconto' || field === 'ID_Estado_Bilhete' ? parseInt(value) || 0 : value,
     });
   }
 
@@ -479,7 +500,7 @@ export default function GerirBilhetes() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nome</label>
                   <input
                     type="text"
-                    value={editandoBilhete.NOME}
+                    value={editandoBilhete.NOME || ""}
                     onChange={(e) => handleInputChange('NOME', e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
@@ -488,7 +509,7 @@ export default function GerirBilhetes() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Total</label>
                   <input
                     type="number"
-                    value={editandoBilhete.Quant_Total}
+                    value={editandoBilhete.Quant_Total || 0}
                     onChange={(e) => handleInputChange('Quant_Total', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
@@ -497,7 +518,7 @@ export default function GerirBilhetes() {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Vendida</label>
                   <input
                     type="number"
-                    value={editandoBilhete.Quant_Vendida}
+                    value={editandoBilhete.Quant_Vendida || 0}
                     onChange={(e) => handleInputChange('Quant_Vendida', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
@@ -505,14 +526,32 @@ export default function GerirBilhetes() {
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
                   <select
-                    value={editandoBilhete.ID_Estado_Bilhete || ""}
+                    value={editandoBilhete.ID_Estado_Bilhete ?? 1}
                     onChange={(e) => handleInputChange('ID_Estado_Bilhete', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   >
-                    <option className="dark:bg-black" value="" disabled>Selecione o estado</option>
                     {estadosBilhete.map((estado) => (
-                      <option className="dark:bg-black" key={estado.id} value={estado.id} disabled={estado.id === 2 && editandoBilhete.Quant_Vendida > 0}>
+                      <option
+                        className="dark:bg-black"
+                        key={estado.id}
+                        value={estado.id}
+                        disabled={estado.id === 2 && editandoBilhete.Quant_Vendida > 0}
+                      >
                         {estado.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Desconto</label>
+                  <select
+                    value={editandoBilhete.Desconto ?? 0}
+                    onChange={(e) => handleInputChange('Desconto', parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                  >
+                    {quantDesconto.map((desconto) => (
+                      <option className="dark:bg-black" key={desconto.id} value={desconto.id}>
+                        {desconto.nome}
                       </option>
                     ))}
                   </select>
