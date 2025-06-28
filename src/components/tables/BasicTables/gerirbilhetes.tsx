@@ -13,7 +13,7 @@ interface Bilhete {
   ID_Bilhetes: number;
   NOME: string;
   Tipo: string;
-  Quant_Disponivel: number;
+  Quant_Total: number;
   Quant_Vendida: number;
   Preco: number;
   Gratuito: boolean;
@@ -267,7 +267,7 @@ export default function GerirBilhetes() {
     formData.append('id', editandoBilhete.ID_Bilhetes.toString());
     formData.append('nome', editandoBilhete.NOME);
     formData.append('tipo', editandoBilhete.Tipo);
-    formData.append('quant_disponivel', editandoBilhete.Quant_Disponivel.toString());
+    formData.append('quant_total', editandoBilhete.Quant_Total.toString());
     formData.append('quant_vendida', editandoBilhete.Quant_Vendida.toString());
     formData.append('preco', editandoBilhete.Preco.toString());
     formData.append('gratuito', editandoBilhete.Gratuito ? '1' : '0');
@@ -375,7 +375,7 @@ export default function GerirBilhetes() {
                 <TableRow>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nome</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tipo</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Disponível</TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Total</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Vendida</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Preço</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Gratuito</TableCell>
@@ -389,7 +389,7 @@ export default function GerirBilhetes() {
                   <TableRow key={b.ID_Bilhetes}>
                     <TableCell className="px-5 py-4 text-start text-gray-800 dark:text-white">{b.NOME}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Tipo}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Disponivel}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Total}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Vendida}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       {b.Preco !== null && b.Preco !== undefined ? Number(b.Preco).toFixed(2) + "€" : "-"}
@@ -472,11 +472,11 @@ export default function GerirBilhetes() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Disponível</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Total</label>
                   <input
                     type="number"
-                    value={editandoBilhete.Quant_Disponivel}
-                    onChange={(e) => handleInputChange('Quant_Disponivel', parseInt(e.target.value) || 0)}
+                    value={editandoBilhete.Quant_Total}
+                    onChange={(e) => handleInputChange('Quant_Total', parseInt(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   />
                 </div>
