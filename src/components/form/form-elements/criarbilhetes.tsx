@@ -140,7 +140,6 @@ export default function Criarbilhetes() {
     tipo: "",
     preco: "",
     quantidade: "",
-    data: "",
     hora: "",
     gratuito: false,
   });
@@ -242,10 +241,6 @@ export default function Criarbilhetes() {
       addToast('warning', 'Quantidade inválida', 'Por favor, insira uma quantidade válida');
       return;
     }
-    if (!form.data) {
-      addToast('warning', 'Data obrigatória', 'Por favor, selecione a data do evento');
-      return;
-    }
 
     setIsSubmitting(true);
     
@@ -270,7 +265,6 @@ export default function Criarbilhetes() {
           tipo: "",
           preco: "",
           quantidade: "",
-          data: "",
           hora: "",
           gratuito: false,
         }));
@@ -368,16 +362,6 @@ export default function Criarbilhetes() {
           />
         </div>
 
-        <div>
-          <DatePicker
-            id="date-picker"
-            label="Data do Evento"
-            placeholder="Selecione a data"
-            onChange={(dates, currentDateString) => {
-              setForm((f) => ({ ...f, data: currentDateString }));
-            }}
-          />
-        </div>
 
         <div className="flex items-center gap-3">
           <Checkbox
