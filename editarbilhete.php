@@ -27,11 +27,9 @@ try {
     // Capturar dados do POST
     $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
     $nome = isset($_POST['nome']) ? trim($_POST['nome']) : '';
-    $tipo = isset($_POST['tipo']) ? trim($_POST['tipo']) : '';
     $quant_total = isset($_POST['quant_total']) ? intval($_POST['quant_total']) : 0;
     $quant_vendida = isset($_POST['quant_vendida']) ? intval($_POST['quant_vendida']) : 0;
-    $preco = isset($_POST['preco']) ? floatval($_POST['preco']) : 0.0;
-    $gratuito = isset($_POST['gratuito']) ? ($_POST['gratuito'] === '1') : false;
+    $estado_id = isset($_POST['estado_id']) ? intval($_POST['estado_id']) : null;
 
     // Validações básicas
     if ($id <= 0) {
@@ -41,11 +39,6 @@ try {
 
     if (empty($nome)) {
         echo json_encode(['success' => false, 'message' => 'Nome é obrigatório']);
-        exit();
-    }
-
-    if (empty($tipo)) {
-        echo json_encode(['success' => false, 'message' => 'Tipo é obrigatório']);
         exit();
     }
 
@@ -61,21 +54,17 @@ try {
     // Atualizar o bilhete (sem ID_Evento e ID_Estado_Bilhete)
     $sql = "UPDATE BILHETES SET 
                 NOME = ?,
-                Tipo = ?,
                 Quant_Total = ?,
                 Quant_Vendida = ?,
-                Preco = ?,
-                Gratuito = ?
+                ID_Estado_Bilhete = ?
             WHERE ID_Bilhetes = ?";
 
     $stmt = $pdo->prepare($sql);
     $result = $stmt->execute([
         $nome,
-        $tipo,
         $quant_total,
         $quant_vendida,
-        $preco,
-        $gratuito ? 1 : 0,
+        $estado_id,
         $id
     ]);
 
