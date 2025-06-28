@@ -55,7 +55,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tipo = $conn->real_escape_string($data["tipo"]);
     $precoLiquido = floatval($data["preco"]);
     $quantidade = intval($data["quantidade"]);
-    $dataEvento = $conn->real_escape_string($data["data"]);
     $gratuito = intval($data["gratuito"]);
 
     // Se for gratuito, o valor final é 0
@@ -73,14 +72,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $uniqueId = uniqid();
     $paymentPageUrl = "ticket-{$ticketSlug}-{$uniqueId}.html";
 
-    $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Disponivel, Data, Gratuito, payment_page_url) 
-            VALUES ($eventoId, '$nome', '$tipo', $precoFinal, $quantidade, '$dataEvento', $gratuito, '$paymentPageUrl')";
+    $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Disponivel, Gratuito, payment_page_url) 
+            VALUES ($eventoId, '$nome', '$tipo', $precoFinal, $quantidade, $gratuito, '$paymentPageUrl')";
 
     if ($conn->query($sql)) {
         $ticketId = $conn->insert_id;
         
         // Create the payment page file
-        $paymentPageContent = generatePaymentPage($ticketId, $nome, $tipo, $precoFinal, $quantidade, $dataEvento, $gratuito);
+        $paymentPageContent = generatePaymentPage($ticketId, $nome, $tipo, $precoFinal, $quantidade, $gratuito);
         
         // Save the payment page
         $filePath = "pages/" . $paymentPageUrl;
@@ -111,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $dataEvento, $gratuito) {
+function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $gratuito) {
     // ... (mantenha o mesmo conteúdo da função generatePaymentPage que você já tem)
     // Esta função pode permanecer exatamente como estava
     // ...
