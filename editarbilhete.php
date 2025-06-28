@@ -31,7 +31,6 @@ try {
     $quant_disponivel = isset($_POST['quant_disponivel']) ? intval($_POST['quant_disponivel']) : 0;
     $quant_vendida = isset($_POST['quant_vendida']) ? intval($_POST['quant_vendida']) : 0;
     $preco = isset($_POST['preco']) ? floatval($_POST['preco']) : 0.0;
-    $data = isset($_POST['data']) ? $_POST['data'] : '';
     $gratuito = isset($_POST['gratuito']) ? ($_POST['gratuito'] === '1') : false;
 
     // Validações básicas
@@ -66,7 +65,6 @@ try {
                 Quant_Disponivel = ?,
                 Quant_Vendida = ?,
                 Preco = ?,
-                Data = ?,
                 Gratuito = ?
             WHERE ID_Bilhetes = ?";
 
@@ -77,7 +75,6 @@ try {
         $quant_disponivel,
         $quant_vendida,
         $preco,
-        $data,
         $gratuito ? 1 : 0,
         $id
     ]);
