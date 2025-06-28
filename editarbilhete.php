@@ -28,7 +28,7 @@ try {
     $id = isset($_POST['id']) ? intval($_POST['id']) : 0;
     $nome = isset($_POST['nome']) ? trim($_POST['nome']) : '';
     $tipo = isset($_POST['tipo']) ? trim($_POST['tipo']) : '';
-    $quant_disponivel = isset($_POST['quant_disponivel']) ? intval($_POST['quant_disponivel']) : 0;
+    $quant_total = isset($_POST['quant_total']) ? intval($_POST['quant_total']) : 0;
     $quant_vendida = isset($_POST['quant_vendida']) ? intval($_POST['quant_vendida']) : 0;
     $preco = isset($_POST['preco']) ? floatval($_POST['preco']) : 0.0;
     $gratuito = isset($_POST['gratuito']) ? ($_POST['gratuito'] === '1') : false;
@@ -62,7 +62,7 @@ try {
     $sql = "UPDATE BILHETES SET 
                 NOME = ?,
                 Tipo = ?,
-                Quant_Disponivel = ?,
+                Quant_Total = ?,
                 Quant_Vendida = ?,
                 Preco = ?,
                 Gratuito = ?
@@ -72,7 +72,7 @@ try {
     $result = $stmt->execute([
         $nome,
         $tipo,
-        $quant_disponivel,
+        $quant_total,
         $quant_vendida,
         $preco,
         $gratuito ? 1 : 0,
