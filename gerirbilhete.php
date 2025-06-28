@@ -46,11 +46,11 @@ try {
 
         $sql = "INSERT INTO BILHETES (
                     NOME, Tipo, Preco, ID_Evento, 
-                    Quant_Disponivel, Quant_Vendida, Data, 
+                    Quant_Disponivel, Quant_Vendida, 
                     Gratuito, ID_Estado_Bilhete
                 ) VALUES (
                     :nome, :tipo, :preco, :id_evento, 
-                    :quant_disponivel, :quant_vendida, :data, 
+                    :quant_disponivel, :quant_vendida,
                     :gratuito, :id_estado
                 )";
 
@@ -62,7 +62,6 @@ try {
             ':id_evento' => $data['id_evento'],
             ':quant_disponivel' => $data['quant_disponivel'] ?? 0,
             ':quant_vendida' => $data['quant_vendida'] ?? 0,
-            ':data' => $data['data'] ?? date('Y-m-d'),
             ':gratuito' => $data['gratuito'] ?? 0,
             ':id_estado' => $data['id_estado'] ?? 1
         ]);
@@ -82,7 +81,6 @@ try {
             Quant_Disponivel,
             Quant_Vendida,
             Preco,
-            Data,
             Gratuito,
             payment_page_url,
             EVENTOS.NOME AS Evento_Nome,
