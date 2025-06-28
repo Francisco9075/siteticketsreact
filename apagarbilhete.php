@@ -28,10 +28,14 @@ try {
         // Confirma que o nome da tabela e coluna estão corretos
         $stmt = $pdo->prepare("DELETE FROM BILHETES WHERE ID_Bilhetes = ?");
         $stmt->execute([$id]);
+        $quant_vendida = $stmt->fetchColumn();
 
         // Confirma se algum registro foi realmente deletado
         if ($stmt->rowCount() > 0) {
             echo json_encode(['success' => true]);
+        } elseif($quant_vendida > 0) {
+            echo json_encode(['success' => false, 'message' => 'Não é possível excluir um bilhete com vendas registradas.']);
+            exit();
         } else {
             echo json_encode(['success' => false, 'message' => 'Bilhete não encontrado.']);
         }
