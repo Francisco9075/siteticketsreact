@@ -20,6 +20,7 @@ interface Bilhete {
   payment_page_url: string;
   Evento_Nome: string;
   Estado_Nome: string;
+  ID_Estado_Bilhete: number;
 }
 
 interface Toast {
@@ -171,7 +172,6 @@ export default function GerirBilhetes() {
       type
     });
   };
-
   useEffect(() => {
     buscarBilhetes();
   }, []);
@@ -186,6 +186,13 @@ export default function GerirBilhetes() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
+
+  const estadosBilhete = [
+  { id: 1, nome: "Ativo" },
+  { id: 2, nome: "Desativado" },
+  { id: 3, nome: "Vendido" }
+  ];
+
 
   function buscarBilhetes() {
     setCarregando(true);
@@ -252,9 +259,16 @@ export default function GerirBilhetes() {
 
     // Verificar se houve alterações
     const bilheteOriginal = bilhetes.find(b => b.ID_Bilhetes === editandoBilhete.ID_Bilhetes);
-    const houveAlteracoes = bilheteOriginal && Object.keys(bilheteOriginal).some(
-      key => bilheteOriginal[key as keyof Bilhete] !== editandoBilhete[key as keyof Bilhete]
+    const houveAlteracoes = (
+      bilheteOriginal &&
+      (
+        bilheteOriginal.NOME !== editandoBilhete.NOME ||
+        bilheteOriginal.Quant_Total !== editandoBilhete.Quant_Total ||
+        bilheteOriginal.Quant_Vendida !== editandoBilhete.Quant_Vendida ||
+        bilheteOriginal.ID_Estado_Bilhete !== editandoBilhete.ID_Estado_Bilhete
+      )
     );
+
 
     if (!houveAlteracoes) {
       addToast('warning', 'Sem alterações', 'Nenhuma alteração foi feita no bilhete.');
@@ -266,11 +280,9 @@ export default function GerirBilhetes() {
     const formData = new FormData();
     formData.append('id', editandoBilhete.ID_Bilhetes.toString());
     formData.append('nome', editandoBilhete.NOME);
-    formData.append('tipo', editandoBilhete.Tipo);
     formData.append('quant_total', editandoBilhete.Quant_Total.toString());
     formData.append('quant_vendida', editandoBilhete.Quant_Vendida.toString());
-    formData.append('preco', editandoBilhete.Preco.toString());
-    formData.append('gratuito', editandoBilhete.Gratuito ? '1' : '0');
+    formData.append('estado_id', editandoBilhete.ID_Estado_Bilhete?.toString() || '');
 
     fetch("http://localhost/editarbilhete.php", {
       method: "POST",
@@ -463,15 +475,6 @@ export default function GerirBilhetes() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tipo</label>
-                  <input
-                    type="text"
-                    value={editandoBilhete.Tipo}
-                    onChange={(e) => handleInputChange('Tipo', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                  />
-                </div>
-                <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantidade Total</label>
                   <input
                     type="number"
@@ -490,28 +493,21 @@ export default function GerirBilhetes() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Preço (€)</label>
-                  <input
-                    type="number"
-                    step="0.01"
-                    value={editandoBilhete.Preco}
-                    onChange={(e) => handleInputChange('Preco', parseFloat(e.target.value) || 0)}
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Estado</label>
+                  <select
+                    value={editandoBilhete.ID_Estado_Bilhete || ""}
+                    onChange={(e) => handleInputChange('ID_Estado_Bilhete', parseInt(e.target.value))}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                  />
-                </div>
-                <div className="md:col-span-2">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      checked={editandoBilhete.Gratuito}
-                      onChange={(e) => handleInputChange('Gratuito', e.target.checked)}
-                      className="mr-2"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Gratuito</span>
-                  </label>
+                  >
+                    <option className="dark:bg-black" value="" disabled>Selecione o estado</option>
+                    {estadosBilhete.map((estado) => (
+                      <option className="dark:bg-black" key={estado.id} value={estado.id} disabled={estado.id === 2 && editandoBilhete.Quant_Vendida > 0}>
+                        {estado.nome}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
-
               <div className="flex justify-end gap-3 mt-6">
                 <button
                   onClick={() => setEditandoBilhete(null)}
