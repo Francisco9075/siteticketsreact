@@ -29,7 +29,8 @@ try {
     $nome = isset($_POST['nome']) ? trim($_POST['nome']) : '';
     $quant_total = isset($_POST['quant_total']) ? intval($_POST['quant_total']) : 0;
     $quant_vendida = isset($_POST['quant_vendida']) ? intval($_POST['quant_vendida']) : 0;
-    $estado_id = isset($_POST['estado_id']) ? intval($_POST['estado_id']) : null;
+    $estado_id = isset($_POST['estado_id']) && is_numeric($_POST['estado_id']) ? intval($_POST['estado_id']) : 1;
+    $desconto = isset($_POST['desconto']) && is_numeric($_POST['desconto']) ? intval($_POST['desconto']) : 0;
 
     // Validações básicas
     if ($id <= 0) {
@@ -56,7 +57,8 @@ try {
                 NOME = ?,
                 Quant_Total = ?,
                 Quant_Vendida = ?,
-                ID_Estado_Bilhete = ?
+                ID_Estado_Bilhete = ?,
+                Desconto = ?
             WHERE ID_Bilhetes = ?";
 
     $stmt = $pdo->prepare($sql);
@@ -65,6 +67,7 @@ try {
         $quant_total,
         $quant_vendida,
         $estado_id,
+        $desconto,
         $id
     ]);
 
