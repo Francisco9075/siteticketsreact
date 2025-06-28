@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $uniqueId = uniqid();
     $paymentPageUrl = "ticket-{$ticketSlug}-{$uniqueId}.html";
 
-    $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Disponivel, Gratuito, payment_page_url) 
+    $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Total, Gratuito, payment_page_url) 
             VALUES ($eventoId, '$nome', '$tipo', $precoFinal, $quantidade, $gratuito, '$paymentPageUrl')";
 
     if ($conn->query($sql)) {
