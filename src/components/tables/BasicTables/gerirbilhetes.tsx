@@ -19,8 +19,8 @@ interface Bilhete {
   Data: string;
   Gratuito: boolean;
   payment_page_url: string;
-  ID_Evento: string;
-  ID_Estado_Bilhete: string;
+  Evento_Nome: string;
+  Estado_Nome: string;
 }
 
 interface Toast {
@@ -401,8 +401,8 @@ export default function GerirBilhetes() {
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       <Badge color={b.Gratuito ? "success" : "error"}>{b.Gratuito ? "Sim" : "Não"}</Badge>
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.ID_Evento}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.ID_Estado_Bilhete}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Evento_Nome}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Estado_Nome}</TableCell>
                     <TableCell className="px-4 py-3 text-start">
                       <div className="flex gap-2 flex-wrap">
                         <button
