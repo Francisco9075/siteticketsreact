@@ -15,6 +15,7 @@ interface Bilhete {
   Tipo: string;
   Quant_Total: number;
   Quant_Vendida: number;
+  percentualLotacao: any;
   Preco: number;
   Gratuito: boolean;
   payment_page_url: string;
@@ -213,7 +214,14 @@ export default function GerirBilhetes() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          setBilhetes(data.bilhetes);
+          // Calculate percentage for each ticket
+          const bilhetesComPercentual = data.bilhetes.map((bilhete: Bilhete) => ({
+            ...bilhete,
+            percentualLotacao: bilhete.Quant_Total > 0 
+              ? Math.min(Math.round((bilhete.Quant_Vendida / bilhete.Quant_Total) * 100), 100)
+              : 0
+          }));
+          setBilhetes(bilhetesComPercentual);
           if (data.bilhetes.length === 0) {
             addToast('info', 'Sem bilhetes', 'Nenhum bilhete foi encontrado no sistema.');
           }
@@ -324,9 +332,17 @@ export default function GerirBilhetes() {
         setSalvando(false);
         if (data.success) {
           setBilhetes((prev) =>
-            prev.map((b) =>
-              b.ID_Bilhetes === editandoBilhete.ID_Bilhetes ? editandoBilhete : b
-            )
+            prev.map((b) => {
+              if (b.ID_Bilhetes === editandoBilhete.ID_Bilhetes) {
+                return {
+                  ...editandoBilhete,
+                  percentualLotacao: editandoBilhete.Quant_Total > 0 
+                    ? Math.min(Math.round((editandoBilhete.Quant_Vendida / editandoBilhete.Quant_Total) * 100), 100)
+                    : 0
+                };
+              }
+              return b;
+            })
           );
           setEditandoBilhete(null);
           addToast('success', 'Sucesso!', 'Bilhete atualizado com sucesso.');
@@ -418,7 +434,7 @@ export default function GerirBilhetes() {
                 <TableRow>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nome</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tipo</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Total</TableCell>
+                  <TableCell isHeader className="px-5 py-3 font medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Total</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade Vendida</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Preço</TableCell>
                   <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Gratuito</TableCell>
@@ -433,7 +449,23 @@ export default function GerirBilhetes() {
                     <TableCell className="px-5 py-4 text-start text-gray-800 dark:text-white">{b.NOME}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Tipo}</TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Total}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Quant_Vendida}</TableCell>
+                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
+                      <div className="flex items-center gap-2">
+                        <div className="w-[60px] h-[6px] bg-gray-200 rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full"
+                            style={{
+                              width: `${b.percentualLotacao}%`,
+                              backgroundColor: b.percentualLotacao > 80 ? '#059669' : 
+                                             b.percentualLotacao > 50 ? '#d97706' : '#dc2626',
+                            }}
+                          ></div>
+                        </div>
+                        <span className="text-xs font-medium text-gray-800 dark:text-gray-400">
+                          {b.percentualLotacao}%
+                        </span>
+                      </div>
+                    </TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">
                       {b.Preco !== null && b.Preco !== undefined ? Number(b.Preco).toFixed(2) + "€" : "-"}
                     </TableCell>
