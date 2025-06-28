@@ -217,8 +217,18 @@ export default function GerirBilhetes() {
   }
 
   function handleDelete(id: number) {
+    const bilhete = bilhetes.find(b => b.ID_Bilhetes === id);
     if (!id) {
       addToast('error', 'Erro', 'ID inválido para exclusão do bilhete.');
+      return;
+    }
+
+    if (bilhete.Quant_Vendida > 0) {
+      addToast(
+        'error',
+        'Exclusão não permitida',
+        'Este bilhete já possui vendas registradas e não pode ser excluído.'
+      );
       return;
     }
 
