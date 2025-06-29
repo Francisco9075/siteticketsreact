@@ -189,7 +189,7 @@ export default function Criarbilhetes() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const res = await fetch("http://localhost/criarbilhete.php", {
+        const res = await fetch("http://localhost/api.php?action=criar_bilhete", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -245,7 +245,7 @@ export default function Criarbilhetes() {
     setIsSubmitting(true);
     
     try {
-      const res = await fetch("http://localhost/criarbilhete.php", {
+      const res = await fetch("http://localhost/api.php?action=criar_bilhete", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
