@@ -210,7 +210,7 @@ export default function GerirBilhetes() {
 
   function buscarBilhetes() {
     setCarregando(true);
-    fetch("http://localhost/gerirbilhete.php")
+    fetch("http://localhost/api.php?action=gerir_bilhetes")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -257,7 +257,7 @@ export default function GerirBilhetes() {
       'Excluir bilhete',
       'Tem certeza que deseja excluir este bilhete? Esta ação não pode ser desfeita.',
       () => {
-        fetch(`http://localhost/apagarbilhete.php?id=${id}`, {
+        fetch(`http://localhost/api.php?action=apagar_bilhete?id=${id}`, {
           method: "DELETE",
         })
           .then((res) => res.json())
@@ -323,7 +323,7 @@ export default function GerirBilhetes() {
     formData.append('estado_id', editandoBilhete.ID_Estado_Bilhete.toString());
     formData.append('desconto', editandoBilhete.Desconto.toString());
 
-    fetch("http://localhost/editarbilhete.php", {
+    fetch("http://localhost/api.php?action=editar_bilhete", {
       method: "POST",
       body: formData,
     })
