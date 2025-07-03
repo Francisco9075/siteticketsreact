@@ -133,6 +133,7 @@ function ConfirmationModal({ modal, onConfirm, onCancel }: {
 export default function GerirEventos() {
   const [eventos, setEventos] = useState<Evento[]>([]);
   const [carregando, setCarregando] = useState(true);
+  const [filtroEstado, setFiltroEstado] = useState<string>('todos');
   const [editandoEvento, setEditandoEvento] = useState<Evento | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -346,6 +347,11 @@ export default function GerirEventos() {
     return categorias[id as keyof typeof categorias] || "Desconhecida";
   };
 
+  const eventosFiltrados = filtroEstado === 'todos'
+  ? eventos
+  : eventos.filter(e => e.ID_Estado_Evento.toString() === filtroEstado);
+
+
   return (
     <>
       <ToastContainer toasts={toasts} removeToast={removeToast} />
@@ -360,14 +366,33 @@ export default function GerirEventos() {
         <h3 className="font-semibold text-gray-800 text-theme-xl dark:text-white/90 sm:text-2xl">
           Gestão de Eventos
         </h3>
-        <button
-          onClick={buscarEventos}
-          disabled={carregando}
-          className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${carregando ? 'animate-spin' : ''}`} />
-          Atualizar
-        </button>
+        <div className="flex justify-between items-center mb-4 flex-wrap gap-3">
+          <div className="flex items-center gap-2">
+            <label htmlFor="filtro" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Filtro:
+            </label>
+            <select
+              id="filtro"
+              value={filtroEstado}
+              onChange={(e) => setFiltroEstado(e.target.value)}
+              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-800 dark:text-white text-sm"
+            >
+              <option value="todos">Todos</option>
+              <option value="1">Ativos</option>
+              <option value="2">Cancelados</option>
+              <option value="3">Concluídos</option>
+            </select>
+          </div>
+
+          <button
+            onClick={buscarEventos}
+            disabled={carregando}
+            className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${carregando ? 'animate-spin' : ''}`} />
+            Atualizar
+          </button>
+        </div>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03] mt-6">
@@ -448,7 +473,7 @@ export default function GerirEventos() {
                 </TableRow>
               </TableHeader>
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {eventos.map((evento) => (
+                {eventosFiltrados.map((evento) => (
                   <TableRow key={evento.ID_Evento}>
                     <TableCell className="px-5 py-4 sm:px-6 text-start font-medium text-sm text-gray-800 dark:text-white/90">
                       {evento.NOME}
