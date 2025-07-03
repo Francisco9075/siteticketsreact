@@ -23,7 +23,7 @@ export default function SignInForm() {
     }
 
     try {
-      const response = await fetch("http://localhost/login.php", {
+      const response = await fetch("http://localhost/api.php?action=signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
