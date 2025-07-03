@@ -28,42 +28,98 @@ $action = $_GET['action'] ?? $_POST['action'] ?? null;
 switch ($action) {
     //section bilhetes
     case 'criar_bilhete':
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $sql = "SELECT ID_Evento as id, NOME as nome FROM EVENTOS";
+            $stmt = $pdo->prepare($sql);
+            
+            if ($stmt->execute()) {
+                $events = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode($events);
+            } else {
+                http_response_code(500);
+                echo json_encode(["erro" => "Erro ao buscar eventos"]);
+            }
+            exit();
+        }
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = json_decode(file_get_contents("php://input"), true);
 
-            if (!isset($data['nome'], $data['tipo'], $data['preco'], $data['id_evento'])) {
-                echo json_encode(['success' => false, 'message' => 'Dados incompletos']);
+            if (!$data) {
+                http_response_code(400);
+                echo json_encode(["erro" => "Dados inválidos ou não enviados"]);
                 exit();
             }
 
-            if (!is_numeric($data['id_evento'])) {
-                echo json_encode(['success' => false, 'message' => 'ID do evento inválido']);
-                exit();
-            }
+            $eventoId = isset($data["evento_id"]) ? intval($data["evento_id"]) : null;
+            $nome = $data["nome"];
+            $tipo = $data["tipo"];
+            $precoLiquido = floatval($data["preco"]);
+            $quantidade = intval($data["quantidade"]);
+            $gratuito = intval($data["gratuito"]);
 
-            $sql = "INSERT INTO BILHETES (
-                        NOME, Tipo, Preco, ID_Evento, 
-                        Quant_Total, Quant_Vendida, 
-                        Gratuito, ID_Estado_Bilhete
-                    ) VALUES (
-                        :nome, :tipo, :preco, :id_evento, 
-                        :quant_total, :quant_vendida,
-                        :gratuito, :id_estado
-                    )";
+            $precoFinal = $gratuito ? 0 : round($precoLiquido * 1.06 + 1.23, 2); // IVA 6% + 1.23€
 
+            $ticketSlug = strtolower(str_replace([' ', 'ã', 'á', 'à', 'â', 'é', 'ê', 'í', 'ó', 'ô', 'õ', 'ú', 'ç'], 
+                                            ['-', 'a', 'a', 'a', 'a', 'e', 'e', 'i', 'o', 'o', 'o', 'u', 'c'], 
+                                            $nome));
+            $ticketSlug = preg_replace('/[^a-z0-9-]/', '', $ticketSlug);
+            $ticketSlug = preg_replace('/-+/', '-', $ticketSlug);
+            $ticketSlug = trim($ticketSlug, '-');
+
+            $uniqueId = uniqid();
+            $paymentPageUrl = "ticket-{$ticketSlug}-{$uniqueId}.html";
+
+            $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Total, Gratuito, payment_page_url) 
+                    VALUES (:eventoId, :nome, :tipo, :preco, :quantidade, :gratuito, :paymentPageUrl)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([
-                ':nome' => $data['nome'],
-                ':tipo' => $data['tipo'],
-                ':preco' => $data['preco'],
-                ':id_evento' => $data['id_evento'],
-                ':quant_total' => $data['quant_total'] ?? 0,
-                ':quant_vendida' => $data['quant_vendida'] ?? 0,
-                ':gratuito' => $data['gratuito'] ?? 0,
-                ':id_estado' => $data['id_estado'] ?? 1
+
+            $success = $stmt->execute([
+                ':eventoId' => $eventoId,
+                ':nome' => $nome,
+                ':tipo' => $tipo,
+                ':preco' => $precoFinal,
+                ':quantidade' => $quantidade,
+                ':gratuito' => $gratuito,
+                ':paymentPageUrl' => $paymentPageUrl
             ]);
 
-            echo json_encode(['success' => true, 'message' => 'Bilhete criado com sucesso']);
+            if ($success) {
+                $ticketId = $pdo->lastInsertId();
+
+                $paymentPageContent = generatePaymentPage($ticketId, $nome, $tipo, $precoFinal, $quantidade, $gratuito);
+                $filePath = "pages/" . $paymentPageUrl;
+
+                if (!is_dir("pages")) {
+                    mkdir("pages", 0755, true);
+                }
+
+                if (file_put_contents($filePath, $paymentPageContent)) {
+                    echo json_encode([
+                        "sucesso" => true,
+                        "message" => "Bilhete criado com sucesso!",
+                        "ticket_id" => $ticketId,
+                        "payment_page_url" => $paymentPageUrl,
+                        "full_url" => "http://localhost/pages/" . $paymentPageUrl
+                    ]);
+                } else {
+                    echo json_encode([
+                        "sucesso" => true,
+                        "message" => "Bilhete criado mas erro ao gerar página de pagamento",
+                        "ticket_id" => $ticketId
+                    ]);
+                }
+            } else {
+                http_response_code(500);
+                echo json_encode(["erro" => "Erro ao inserir"]);
+            }
+        }
+
+
+        function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $gratuito) {
+            // ... (mantenha o mesmo conteúdo da função generatePaymentPage que você já tem)
+            // Esta função pode permanecer exatamente como estava
+            // ...
         }
         break;
 
@@ -306,11 +362,6 @@ switch ($action) {
 
     //Sign In
     case 'signin':
-        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-            http_response_code(200);
-            exit();
-        }
-
         $data = json_decode(file_get_contents('php://input'), true);
 
         $email = isset($data['email']) ? trim($data['email']) : '';
@@ -347,7 +398,7 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Email ou senha incorretos.']);
         }
         break;
-        
+
     default:
         http_response_code(400);
         echo json_encode(["erro" => "Ação inválida ou não especificada"]);
