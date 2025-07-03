@@ -192,7 +192,7 @@ export default function GerirBilhetes() {
   const estadosBilhete = [
   { id: 1, nome: "Ativo" },
   { id: 2, nome: "Desativado" },
-  { id: 3, nome: "Vendido" }
+  { id: 3, nome: "Esgotado" }
   ];
 
   const quantDesconto = [
@@ -471,7 +471,23 @@ export default function GerirBilhetes() {
                       <Badge color={b.Gratuito ? "success" : "error"}>{b.Gratuito ? "Sim" : "Não"}</Badge>
                     </TableCell>
                     <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Evento_Nome}</TableCell>
-                    <TableCell className="px-4 py-3 text-start text-gray-800 dark:text-gray-400">{b.Estado_Nome}</TableCell>
+                    <TableCell className="px-4 py-3 text-start">
+                      <Badge
+                        color={
+                          b.Estado_Nome === "Ativo"
+                            ? "success"
+                            : b.Estado_Nome === "Desativado"
+                            ? "warning"
+                            : b.Estado_Nome === "Esgotado"
+                            ? "error"
+                            : undefined
+                        }
+                      >
+                        {b.Estado_Nome}
+                      </Badge>
+                    </TableCell>
+
+
                     <TableCell className="px-4 py-3 text-start">
                       <div className="flex gap-2 flex-wrap">
                         <button
