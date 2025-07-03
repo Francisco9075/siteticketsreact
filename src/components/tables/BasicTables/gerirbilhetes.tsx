@@ -257,9 +257,7 @@ export default function GerirBilhetes() {
       'Excluir bilhete',
       'Tem certeza que deseja excluir este bilhete? Esta ação não pode ser desfeita.',
       () => {
-        fetch(`http://localhost/api.php?action=apagar_bilhete?id=${id}`, {
-          method: "DELETE",
-        })
+        fetch(`http://localhost/api.php?action=apagar_bilhete&id=${id}`)
           .then((res) => res.json())
           .then((data) => {
             if (data.success) {
