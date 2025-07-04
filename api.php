@@ -194,23 +194,30 @@ switch ($action) {
 
     case 'apagar_bilhete':
         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-        if ($id <= 0) {
-            echo json_encode(['success' => false, 'message' => 'ID inválido.']);
-            break;
-        }
-
-        try {
-            $stmt = $pdo->prepare("DELETE FROM BILHETES WHERE ID_Bilhetes = ?");
-            $stmt->execute([$id]);
-
+    
+        // Debug: log do ID recebido
+        error_log("ID recebido para exclusão: " . $id);
+    
+        if ($id > 0) {
+            // Confirma que o nome da tabela e coluna estão corretos
+            try{
+                $stmt = $pdo->prepare("DELETE FROM BILHETES WHERE ID_Bilhetes = ?");
+                $stmt->execute([$id]);
+                $quant_vendida = $stmt->fetchColumn();
+            } catch (PDOException $e) {
+                echo json_encode(['success' => false, 'message' => 'Erro no banco de dados: ' . $e->getMessage()]);
+            }
+            // Confirma se algum registro foi realmente deletado
             if ($stmt->rowCount() > 0) {
                 echo json_encode(['success' => true]);
+            } elseif($quant_vendida > 0) {
+                echo json_encode(['success' => false, 'message' => 'Não é possível excluir um bilhete com vendas registradas.']);
+                exit();
             } else {
-                echo json_encode(['success' => false, 'message' => 'Bilhete não encontrado ou já foi excluído.']);
+                echo json_encode(['success' => false, 'message' => 'Bilhete não encontrado.']);
             }
-        } catch (PDOException $e) {
-            echo json_encode(['success' => false, 'message' => 'Erro ao apagar: ' . $e->getMessage()]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'ID inválido.']);
         }
         break;
 
