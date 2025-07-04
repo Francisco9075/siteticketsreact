@@ -99,7 +99,6 @@ try {
         'id_cliente' => $id_cliente,
         'id_bilhete' => $ticketId
     ]);
-    */
 
     echo json_encode(['success' => true, 'message' => 'Compra realizada com sucesso!']);
 
