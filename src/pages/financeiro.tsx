@@ -42,6 +42,35 @@ const PaymentProcessingPage = () => {
     currentState: 'Validado'
   };
 
+  const submitIban = async () => {
+    if (!iban || !ibanFile) {
+      alert("Preencha o IBAN e selecione um comprovativo.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("iban", iban);
+    formData.append("comprovativo", ibanFile);
+
+    try {
+      const response = await fetch("http://localhost/api.php?action=get_IBAN", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.sucesso) {
+        alert("IBAN enviado com sucesso!");
+      } else {
+        alert("Erro: " + (result.erro || result.message));
+      }
+    } catch (error) {
+      console.error("Erro ao enviar IBAN:", error);
+      alert("Erro de conexão com o servidor.");
+    }
+  };
+
+
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -237,6 +266,9 @@ const PaymentProcessingPage = () => {
                 <p>Última alteração: {paymentStatus.lastChange}</p>
                 <p>Estado anterior: {getStatusBadge(paymentStatus.previousState)} → 
                   Estado atual: {getStatusBadge(paymentStatus.currentState)}</p>
+                  <button className="btn btn-secondary" onClick={submitIban}>
+                    Guardar IBAN
+                  </button>
               </div>
             </div>
           </div>
