@@ -405,6 +405,37 @@ switch ($action) {
             echo json_encode(['success' => false, 'message' => 'Email ou senha incorretos.']);
         }
         break;
+    
+
+    //IBAN
+    case 'get_IBAN':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $iban = $_POST['iban'] ?? '';
+            $comprovativoFile = $_FILES['comprovativo'] ?? null;
+
+            if (!$iban || !$comprovativoFile || $comprovativoFile['error'] !== 0) {
+                http_response_code(400);
+                echo json_encode(["erro" => "IBAN ou comprovativo inválido"]);
+                break;
+            }
+
+            $destino = 'uploads/' . basename($comprovativoFile['name']);
+            if (!move_uploaded_file($comprovativoFile['tmp_name'], $destino)) {
+                http_response_code(500);
+                echo json_encode(["erro" => "Falha ao guardar o comprovativo"]);
+                break;
+            }
+
+            $sql = "INSERT INTO ADMIN (IBAN, Comprovativo_IBAN) VALUES (:iban, :comprovativo)";
+            $stmt = $pdo->prepare($sql);
+            $success = $stmt->execute([
+                ':iban' => $iban,
+                ':comprovativo' => $destino,
+            ]);
+
+            echo json_encode($success ? ["sucesso" => true] : ["erro" => "Erro ao inserir IBAN"]);
+        }
+        break;
 
     default:
         http_response_code(400);
