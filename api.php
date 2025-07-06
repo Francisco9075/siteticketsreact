@@ -411,30 +411,80 @@ switch ($action) {
     case 'get_IBAN':
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $iban = $_POST['iban'] ?? '';
-            $comprovativoFile = $_FILES['comprovativo'] ?? null;
+            $idAdmin = $_POST['id_admin'] ?? '';
 
-            if (!$iban || !$comprovativoFile || $comprovativoFile['error'] !== 0) {
+            if (!$iban || !$idAdmin) {
                 http_response_code(400);
-                echo json_encode(["erro" => "IBAN ou comprovativo inválido"]);
+                echo json_encode(["erro" => "Dados incompletos ou inválidos."]);
                 break;
             }
 
-            $destino = 'uploads/' . basename($comprovativoFile['name']);
-            if (!move_uploaded_file($comprovativoFile['tmp_name'], $destino)) {
-                http_response_code(500);
-                echo json_encode(["erro" => "Falha ao guardar o comprovativo"]);
-                break;
-            }
-
-            $sql = "INSERT INTO ADMIN (IBAN, Comprovativo_IBAN) VALUES (:iban, :comprovativo)";
+            // Atualizar registro existente
+            $sql = "UPDATE ADMIN SET IBAN = :iban WHERE ID_Admin = :id_admin";
             $stmt = $pdo->prepare($sql);
             $success = $stmt->execute([
                 ':iban' => $iban,
-                ':comprovativo' => $destino,
+                ':id_admin' => $idAdmin
             ]);
 
-            echo json_encode($success ? ["sucesso" => true] : ["erro" => "Erro ao inserir IBAN"]);
+            echo json_encode($success ? ["sucesso" => true] : ["erro" => "Erro ao atualizar IBAN."]);
         }
+        break;
+
+    case 'listar_metodos_pagamento':
+        $sql = "SELECT ID_Metodo_Pagamento, Estado FROM Metodo_Pagamento";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute();
+        $metodos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'sucesso' => true,
+            'metodos' => $metodos
+        ]);
+        break;
+    
+    case 'alterar_estado':
+        $idMetodo = $_POST['id_metodo'];
+        $estado = $_POST['estado'];
+
+        $sql = "UPDATE Metodo_Pagamento SET Estado = :estado WHERE ID_Metodo_Pagamento = :id_metodo";
+        $stmt = $pdo->prepare($sql);
+        $success = $stmt->execute([
+            ':estado' => $estado,
+            ':id_metodo' => $idMetodo
+        ]);
+
+        echo json_encode(['sucesso' => $success]);
+        break;
+
+    case 'receita_por_evento':
+        $sql = "
+            SELECT 
+                ID_Evento,
+                SUM(
+                    CASE 
+                        WHEN Gratuito = 1 THEN 0
+                        ELSE Preco * (1 - IFNULL(Desconto, 0)) * IFNULL(Quant_Vendida, 0)
+                    END
+                ) AS Receita_Total
+            FROM BILHETES
+            GROUP BY ID_Evento
+        ";
+
+        try {
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            $dados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            echo json_encode([
+                'successo' => false,
+                'erro' => 'Erro na base de dados: ' . $e->getMessage()
+            ]);
+        }
+        echo json_encode([
+            'successo' => true,
+            'data' => $dados
+        ]);
         break;
 
     default:
