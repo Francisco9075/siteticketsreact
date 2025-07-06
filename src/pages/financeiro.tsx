@@ -26,7 +26,6 @@ interface Transaction {
 
 const PaymentProcessingPage = () => {
   const [iban, setIban] = useState('');
-  const [ibanFile, setIbanFile] = useState(null);
   const [selectedTab, setSelectedTab] = useState('config');
   const [paymentMethods, setPaymentMethods] = useState({
     creditCard: false,
@@ -43,14 +42,20 @@ const PaymentProcessingPage = () => {
   };
 
   const submitIban = async () => {
-    if (!iban || !ibanFile) {
-      alert("Preencha o IBAN e selecione um comprovativo.");
+    if (!iban) {
+      alert("Preencha o IBAN.");
+      return;
+    }
+
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("Utilizador não autenticado.");
       return;
     }
 
     const formData = new FormData();
     formData.append("iban", iban);
-    formData.append("comprovativo", ibanFile);
+    formData.append("id_admin", userId);
 
     try {
       const response = await fetch("http://localhost/api.php?action=get_IBAN", {
@@ -60,7 +65,7 @@ const PaymentProcessingPage = () => {
 
       const result = await response.json();
       if (result.sucesso) {
-        alert("IBAN enviado com sucesso!");
+        alert("IBAN atualizado com sucesso!");
       } else {
         alert("Erro: " + (result.erro || result.message));
       }
@@ -70,12 +75,40 @@ const PaymentProcessingPage = () => {
     }
   };
 
-
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const fetchPaymentMethodStates = async () => {
+    try {
+      const response = await fetch("http://localhost/api.php?action=listar_metodos_pagamento");
+      const result = await response.json();
+
+      if (result.sucesso && result.metodos) {
+        const updatedStates = {
+          creditCard: false,
+          mbway: false,
+          referenceMB: false,
+        };
+
+        result.metodos.forEach((method: any) => {
+          if (method.ID_Metodo_Pagamento === 1) updatedStates.creditCard = method.Estado === 1;
+          if (method.ID_Metodo_Pagamento === 2) updatedStates.mbway = method.Estado === 1;
+          if (method.ID_Metodo_Pagamento === 3) updatedStates.referenceMB = method.Estado === 1;
+        });
+
+        setPaymentMethods(updatedStates);
+      } else {
+        alert("Erro ao obter métodos de pagamento.");
+      }
+    } catch (error) {
+      console.error("Erro ao buscar métodos:", error);
+      alert("Erro de conexão com o servidor.");
+    }
+  };
+
   useEffect(() => {
     fetchTransactions();
+    fetchPaymentMethodStates();
   }, []);
 
   const fetchTransactions = () => {
@@ -144,20 +177,43 @@ const PaymentProcessingPage = () => {
     }
   ];
 
-  const handleFileUpload = (event: any) => {
-    const file = event.target.files[0];
-    setIbanFile(file);
-  };
-
   const exportTransactions = () => {
     alert('Exportação de transações iniciada');
   };
 
-  const handlePaymentMethodChange = (method: string) => {
-    setPaymentMethods(prev => ({
-      ...prev,
-      [method]: !prev[method]
-    }));
+  const handlePaymentMethodChange = async (method: string) => {
+    const methodIds: { [key: string]: number } = {
+      creditCard: 1,
+      mbway: 2,
+      referenceMB: 3,
+    };
+
+    const newStatus = !paymentMethods[method];
+    const methodId = methodIds[method];
+
+    try {
+      const formData = new FormData();
+      formData.append("id_metodo", methodId.toString());
+      formData.append("estado", newStatus ? "1" : "0");
+
+      const response = await fetch("http://localhost/api.php?action=alterar_estado", {
+        method: "POST",
+        body: formData,
+      });
+
+      const result = await response.json();
+      if (result.sucesso) {
+        setPaymentMethods((prev) => ({
+          ...prev,
+          [method]: newStatus,
+        }));
+      } else {
+        alert("Erro ao atualizar o estado: " + (result.erro || result.message));
+      }
+    } catch (error) {
+      console.error("Erro ao alterar estado do método de pagamento:", error);
+      alert("Erro de conexão com o servidor.");
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -180,6 +236,7 @@ const PaymentProcessingPage = () => {
       </span>
     );
   };
+
 
   return (
     <div className="payment-page">
@@ -213,13 +270,12 @@ const PaymentProcessingPage = () => {
 
       {selectedTab === 'config' && (
         <>
-          {/* Secção 1 - Configuração de Pagamentos */}
           <div className="section">
             <h2 className="section-title">
               <CreditCard size={24} />
               Configuração de Pagamentos
             </h2>
-            
+
             <div className="status-card">
               <div className="status-message">
                 <CheckCircle size={20} />
@@ -242,22 +298,6 @@ const PaymentProcessingPage = () => {
                 onChange={(e) => setIban(e.target.value)}
                 placeholder="PT50 0000 0000 0000 0000 0000 0"
               />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Comprovativo de IBAN</label>
-              <div className="file-upload">
-                <input
-                  type="file"
-                  className="file-upload-input"
-                  accept=".pdf,.jpg,.jpeg,.png"
-                  onChange={handleFileUpload}
-                />
-                <div className="file-upload-btn">
-                  <Upload size={16} />
-                  {ibanFile ? ibanFile.name : 'Seleccionar ficheiro (PDF ou Imagem)'}
-                </div>
-              </div>
             </div>
 
             <div className="form-group">
@@ -389,11 +429,6 @@ const PaymentProcessingPage = () => {
             <h2 className="section-title">Resumo de Receitas</h2>
             
             <div className="stats-grid">
-              <div className="stat-card">
-                <div className="stat-value">€2.847,50</div>
-                <div className="stat-label">Receita Total por Evento</div>
-              </div>
-              
               <div className="stat-card">
                 <div className="stat-value">€12.450,75</div>
                 <div className="stat-label">Receita Total Acumulada</div>
