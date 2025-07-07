@@ -47,7 +47,7 @@ export default function App() {
 
           {/* Forms */}
           <Route path="form-elements" element={<FormElements />} />
-          <Route path="criarbilhetespage" element={<Criarbilhetespage />} />
+          <Route path="CriarBilhetes" element={<Criarbilhetespage />} />
           <Route path="CriarEventos" element={<CriarEventospage />} />
           <Route path="Financeiro" element={<ProcessamentoPagamentos/>}/>
           <Route path="DashboardFinanceira" element={<FinancialDashboard/>}/>
