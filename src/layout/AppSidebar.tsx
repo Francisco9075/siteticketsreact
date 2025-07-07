@@ -38,7 +38,7 @@ const navItems: NavItem[] = [
   {
     icon: <TicketIcon />,
     name: "Bilhetes",
-    subItems: [{ name: "Criar Bilhetes", path: "/criarbilhetespage", pro: false },
+    subItems: [{ name: "Criar Bilhetes", path: "/CriarBilhetes", pro: false },
                { name: "Gerir Bilhetes", path: "/GerirBilhetes", pro: false },
 
     ],
@@ -77,7 +77,7 @@ const othersItems: NavItem[] = [
     name: "Authentication",
     subItems: [
       { name: "Sign In", path: "/signin", pro: false },
-      { name: "Sign Up", path: "/signup", pro: false },
+      { name: "Sign Out", path: "/signout", pro: false },
     ],
   },
 ];
