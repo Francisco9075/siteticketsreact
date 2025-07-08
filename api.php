@@ -23,7 +23,15 @@ try {
     exit();
 }
 
-$action = $_GET['action'] ?? $_POST['action'] ?? null;
+$rawInput = file_get_contents("php://input");
+$jsonData = json_decode($rawInput, true);
+$action = $_GET['action'] ?? $jsonData['action'] ?? null;
+
+function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $gratuito) {
+            // ... (mantenha o mesmo conteúdo da função generatePaymentPage que você já tem)
+            // Esta função pode permanecer exatamente como estava
+            // ...
+}
 
 switch ($action) {
     //section bilhetes
@@ -72,17 +80,23 @@ switch ($action) {
 
             $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Total, Gratuito, payment_page_url) 
                     VALUES (:eventoId, :nome, :tipo, :preco, :quantidade, :gratuito, :paymentPageUrl)";
-            $stmt = $pdo->prepare($sql);
+            
+            try {
+                $stmt = $pdo->prepare($sql);
 
-            $success = $stmt->execute([
-                ':eventoId' => $eventoId,
-                ':nome' => $nome,
-                ':tipo' => $tipo,
-                ':preco' => $precoFinal,
-                ':quantidade' => $quantidade,
-                ':gratuito' => $gratuito,
-                ':paymentPageUrl' => $paymentPageUrl
-            ]);
+                $success = $stmt->execute([
+                    ':eventoId' => $eventoId,
+                    ':nome' => $nome,
+                    ':tipo' => $tipo,
+                    ':preco' => $precoFinal,
+                    ':quantidade' => $quantidade,
+                    ':gratuito' => $gratuito,
+                    ':paymentPageUrl' => $paymentPageUrl
+                ]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(["erro" => "Erro ao inserir: " . $e->getMessage()]);
+            }
 
             if ($success) {
                 $ticketId = $pdo->lastInsertId();
@@ -115,12 +129,6 @@ switch ($action) {
             }
         }
 
-
-        function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $gratuito) {
-            // ... (mantenha o mesmo conteúdo da função generatePaymentPage que você já tem)
-            // Esta função pode permanecer exatamente como estava
-            // ...
-        }
         break;
 
     case 'gerir_bilhetes':
