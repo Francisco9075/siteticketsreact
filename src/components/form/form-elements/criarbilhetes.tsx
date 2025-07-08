@@ -35,6 +35,17 @@ interface ConfirmModal {
   type: 'danger' | 'warning' | 'info';
 }
 
+interface CriarbilhetesProps {
+  onChange?: (data: {
+    evento: string;
+    tipoBilhete: string;
+    precoLiquido: string;
+    quantidade: string;
+    dataEvento: string;
+    gratuito: boolean;
+  }) => void;
+}
+
 function ToastContainer({ toasts, removeToast }: { toasts: Toast[], removeToast: (id: string) => void }) {
   return (
     <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-[99999] pointer-events-none p-4">
@@ -124,7 +135,7 @@ function ConfirmationModal({ modal, onConfirm, onCancel }: {
   );
 }
 
-export default function Criarbilhetes() {
+export default function Criarbilhetes({ onChange }: CriarbilhetesProps) {
   const ticketTypes: TicketType[] = [
     { value: "standard", label: "Standard" },
     { value: "vip", label: "VIP" },
@@ -155,6 +166,19 @@ export default function Criarbilhetes() {
     onCancel: () => {},
     type: 'info'
   });
+
+  useEffect(() => {
+    if (onChange) {
+      onChange({
+        evento: events.find(e => e.id.toString() === form.evento_id)?.nome || '',
+        tipoBilhete: ticketTypes.find(t => t.value === form.tipo)?.label || form.tipo,
+        precoLiquido: form.preco,
+        quantidade: form.quantidade,
+        dataEvento: form.hora,
+        gratuito: form.gratuito
+      });
+    }
+  }, [form, events, onChange]);
 
   const addToast = (type: Toast['type'], title: string, message: string) => {
     const id = Date.now().toString();
@@ -362,6 +386,19 @@ export default function Criarbilhetes() {
           />
         </div>
 
+        <div>
+          <Label htmlFor="data">Data do Evento</Label>
+          <DatePicker
+            selected={form.hora ? new Date(form.hora) : null}
+            onChange={(date: Date) => setForm((f) => ({ ...f, hora: date.toISOString() }))}
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+            dateFormat="dd/MM/yyyy HH:mm"
+            placeholderText="Selecione data e hora"
+            className="w-full"
+          />
+        </div>
 
         <div className="flex items-center gap-3">
           <Checkbox
