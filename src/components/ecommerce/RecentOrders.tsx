@@ -16,40 +16,15 @@ export default function RecentOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchRecentOrders = async () => {
-      try {
-        const response = await fetch('http://localhost/recentorders.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+  
 
-        const data = await response.json();
-        if (data.success) {
-          setOrders(data.data);
-        } else {
-          setError(data.message || 'Erro ao carregar dados');
-        }
-      } catch (error) {
-        setError('Erro na conexão com o servidor');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchRecentOrders();
-  }, []);
-
-  if (loading) return <div className="p-4">Carregando...</div>;
-  if (error) return <div className="p-4 text-red-500">{error}</div>;
 
   return (
     <div className="stretch-right overflow-hidden rounded-2xl border border-gray-200 bg-white px-4 pb-3 pt-4 dark:border-gray-800 dark:bg-white/[0.03] sm:px-6">
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">
-          Compras Recentes
+         
         </h3>
       </div>
       
@@ -58,19 +33,19 @@ export default function RecentOrders() {
           <TableHeader className="border-gray-100 dark:border-gray-800 border-y">
             <TableRow>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Cliente
+                
               </TableCell>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Bilhete
+                
               </TableCell>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Valor
+                
               </TableCell>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Check-in
+              
               </TableCell>
               <TableCell isHeader className="py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
-                Estado
+      
               </TableCell>
             </TableRow>
           </TableHeader>

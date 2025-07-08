@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   Table,
   TableBody,
@@ -9,18 +9,14 @@ import {
 import Badge from "../../ui/badge/Badge";
 import { X, RefreshCw, CheckCircle, AlertCircle, XCircle, AlertTriangle } from "lucide-react";
 
-interface Participante {
-  id: number;
-  nomeComprador: string;
-  emailComprador: string;
-  tipoBilhete: string;
-  quantidadeComprada: number;
-  pedidoFatura: boolean;
-  dataCompra: string;
-  metodoPagamento: string;
-  estadoBilhete: "válido" | "usado" | "cancelado";
-  checkIn: boolean;
-  logCheckIn?: string;
+interface Cliente {
+  ID_Clientes: number;
+  Nome: string;
+  Email: string | null;
+  Contacto: string | null;
+  NIF: string | null;
+  Morada: string | null;
+  Pedido_Fatura: number;
 }
 
 interface Toast {
@@ -128,51 +124,10 @@ function ConfirmationModal({ modal, onConfirm, onCancel }: {
   );
 }
 
-const participantesDataInitial: Participante[] = [
-  {
-    id: 1,
-    nomeComprador: "João Silva",
-    emailComprador: "joao@example.com",
-    tipoBilhete: "VIP",
-    quantidadeComprada: 2,
-    pedidoFatura: true,
-    dataCompra: "2025-06-01 14:00:00",
-    metodoPagamento: "MB Way",
-    estadoBilhete: "válido",
-    checkIn: true,
-    logCheckIn: "2025-06-01 14:05:00",
-  },
-  {
-    id: 2,
-    nomeComprador: "Maria Oliveira",
-    emailComprador: "maria@example.com",
-    tipoBilhete: "Normal",
-    quantidadeComprada: 1,
-    pedidoFatura: false,
-    dataCompra: "2025-06-02 10:00:00",
-    metodoPagamento: "Cartão",
-    estadoBilhete: "usado",
-    checkIn: false,
-  },
-  {
-    id: 3,
-    nomeComprador: "Pedro Santos",
-    emailComprador: "pedro@example.com",
-    tipoBilhete: "Premium",
-    quantidadeComprada: 3,
-    pedidoFatura: true,
-    dataCompra: "2025-06-03 16:30:00",
-    metodoPagamento: "Transferência",
-    estadoBilhete: "válido",
-    checkIn: false,
-  },
-];
-
 export default function GerirClientes() {
-  const [participantesData, setParticipantesData] = useState<Participante[]>(participantesDataInitial);
-  const [carregando, setCarregando] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [participanteEditando, setParticipanteEditando] = useState<Participante | null>(null);
+  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [carregando, setCarregando] = useState(true);
+  const [editandoCliente, setEditandoCliente] = useState<Cliente | null>(null);
   const [salvando, setSalvando] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [confirmModal, setConfirmModal] = useState<ConfirmModal>({
@@ -214,24 +169,14 @@ export default function GerirClientes() {
     });
   };
 
-  const buscarParticipantes = () => {
-    setCarregando(true);
-    // Simulação de requisição à API
-    setTimeout(() => {
-      setParticipantesData(participantesDataInitial);
-      setCarregando(false);
-      // Removido: addToast('success', 'Sucesso', 'Clientes carregados com sucesso.');
-    }, 1000);
-  };
-
   useEffect(() => {
-    buscarParticipantes();
+    buscarClientes();
   }, []);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!document.hidden) {
-        buscarParticipantes();
+        buscarClientes();
       }
     };
 
@@ -239,17 +184,82 @@ export default function GerirClientes() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  const handleEditar = (participante: Participante) => {
-    setParticipanteEditando({ ...participante });
-    setIsModalOpen(true);
-  };
+  function buscarClientes() {
+    setCarregando(true);
+    fetch("http://localhost/api.php?action=gerir_clientes")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.sucesso) {
+          setClientes(data.clientes);
+          if (data.clientes.length === 0) {
+            addToast('info', 'Sem clientes', 'Nenhum cliente foi encontrado no sistema.');
+          }
+        } else {
+          addToast('error', 'Erro ao carregar', 'Não foi possível carregar os clientes. Tente novamente.');
+        }
+        setCarregando(false);
+      })
+      .catch((err) => {
+        console.error("Erro na requisição:", err);
+        addToast('error', 'Erro de conexão', 'Falha na comunicação com o servidor. Verifique sua conexão.');
+        setCarregando(false);
+      });
+  }
 
-  const handleSalvar = () => {
-    if (!participanteEditando) return;
+  function handleDelete(id: number) {
+    if (!id) {
+      addToast('error', 'Erro', 'ID inválido para exclusão do cliente.');
+      return;
+    }
 
-    const participanteOriginal = participantesData.find(p => p.id === participanteEditando.id);
-    const houveAlteracoes = participanteOriginal && Object.keys(participanteOriginal).some(
-      key => participanteOriginal[key as keyof Participante] !== participanteEditando[key as keyof Participante]
+    showConfirmModal(
+      'Excluir cliente',
+      'Tem certeza que deseja excluir este cliente? Esta ação não pode ser desfeita.',
+      () => {
+        fetch("http://localhost/api.php?action=apagar_cliente", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id_cliente: id }),
+        })
+          .then((res) => {
+            if (!res.ok) {
+              throw new Error('Erro na resposta do servidor');
+            }
+            return res.json();
+          })
+          .then((data) => {
+            if (data.sucesso) {
+              setClientes((prev) => prev.filter((c) => c.ID_Clientes !== id));
+              addToast('success', 'Sucesso!', 'Cliente excluído com sucesso.');
+            } else {
+              addToast('error', 'Erro ao excluir', data.erro || 'Ocorreu um erro inesperado.');
+            }
+          })
+          .catch((error) => {
+            console.error("Erro na exclusão:", error);
+            addToast('error', 'Erro de conexão', 'Falha ao comunicar com o servidor para excluir o cliente.');
+          })
+          .finally(() => {
+            setConfirmModal(prev => ({ ...prev, isOpen: false }));
+          });
+      },
+      'danger'
+    );
+  }
+
+  function handleEdit(cliente: Cliente) {
+    setEditandoCliente({ ...cliente });
+  }
+
+  function handleSave() {
+    if (!editandoCliente) return;
+
+    // Verificar se houve alterações
+    const clienteOriginal = clientes.find(c => c.ID_Clientes === editandoCliente.ID_Clientes);
+    const houveAlteracoes = clienteOriginal && Object.keys(clienteOriginal).some(
+      key => clienteOriginal[key as keyof Cliente] !== editandoCliente[key as keyof Cliente]
     );
 
     if (!houveAlteracoes) {
@@ -258,54 +268,53 @@ export default function GerirClientes() {
     }
 
     setSalvando(true);
-    
-    setTimeout(() => {
-      setParticipantesData(prev =>
-        prev.map(participante =>
-          participante.id === participanteEditando.id ? participanteEditando : participante
-        )
-      );
-      setIsModalOpen(false);
-      setParticipanteEditando(null);
-      setSalvando(false);
-      addToast('success', 'Sucesso!', 'Cliente atualizado com sucesso.');
-    }, 1000);
-  };
 
-  const handleCancelar = () => {
-    setIsModalOpen(false);
-    setParticipanteEditando(null);
-  };
+    const payload = {
+      id_cliente: editandoCliente.ID_Clientes,
+      nome: editandoCliente.Nome,
+      email: editandoCliente.Email,
+      contacto: editandoCliente.Contacto,
+      nif: editandoCliente.NIF,
+      morada: editandoCliente.Morada,
+      pedido_fatura: editandoCliente.Pedido_Fatura
+    };
 
-  const handleInputChange = (field: keyof Participante, value: any) => {
-    if (participanteEditando) {
-      setParticipanteEditando(prev => ({
-        ...prev!,
-        [field]: value
-      }));
-    }
-  };
-
-  const handleExcluir = (id: number) => {
-    const participante = participantesData.find(p => p.id === id);
-    if (!participante) {
-      addToast('error', 'Erro', 'Cliente não encontrado para exclusão.');
-      return;
-    }
-
-    showConfirmModal(
-      'Excluir cliente',
-      `Tem certeza que deseja excluir o cliente "${participante.nomeComprador}"? Esta ação não pode ser desfeita.`,
-      () => {
-        setTimeout(() => {
-          setParticipantesData(prev => prev.filter(participante => participante.id !== id));
-          addToast('success', 'Sucesso', 'Cliente excluído com sucesso.');
-          setConfirmModal(prev => ({ ...prev, isOpen: false }));
-        }, 1000);
+    fetch("http://localhost/api.php?action=editar_cliente", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
       },
-      'danger'
-    );
-  };
+      body: JSON.stringify(payload),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setSalvando(false);
+        if (data.sucesso) {
+          setClientes((prev) =>
+            prev.map((c) =>
+              c.ID_Clientes === editandoCliente.ID_Clientes ? editandoCliente : c
+            )
+          );
+          setEditandoCliente(null);
+          addToast('success', 'Sucesso!', 'Cliente atualizado com sucesso.');
+        } else {
+          addToast('error', 'Erro ao salvar', data.erro || 'Ocorreu um erro ao atualizar o cliente.');
+        }
+      })
+      .catch((error) => {
+        setSalvando(false);
+        console.error("Erro ao salvar:", error);
+        addToast('error', 'Erro de conexão', 'Falha ao comunicar com o servidor para salvar as alterações.');
+      });
+  }
+
+  function handleInputChange(field: keyof Cliente, value: any) {
+    if (!editandoCliente) return;
+    setEditandoCliente({
+      ...editandoCliente,
+      [field]: field === "Pedido_Fatura" ? (value ? 1 : 0) : value,
+    });
+  }
 
   return (
     <>
@@ -322,7 +331,7 @@ export default function GerirClientes() {
           Gestão de Clientes
         </h3>
         <button
-          onClick={buscarParticipantes}
+          onClick={buscarClientes}
           disabled={carregando}
           className="flex items-center gap-2 px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:opacity-50"
         >
@@ -338,7 +347,7 @@ export default function GerirClientes() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
               <span className="ml-3 text-gray-500">A carregar clientes...</span>
             </div>
-          ) : participantesData.length === 0 ? (
+          ) : clientes.length === 0 ? (
             <div className="text-center py-8">
               <p className="text-gray-500">Nenhum cliente encontrado.</p>
             </div>
@@ -346,63 +355,72 @@ export default function GerirClientes() {
             <Table>
               <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
                 <TableRow>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Nome</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Email</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Tipo Bilhete</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Quantidade</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Pedido de Fatura</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Data da Compra</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Método Pagamento</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Estado Bilhete</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Check-in</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Log Check-in</TableCell>
-                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">Ações</TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    ID
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Nome
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Email
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Contacto
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    NIF
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Morada
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Pedido Fatura
+                  </TableCell>
+                  <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-xs dark:text-gray-400">
+                    Ações
+                  </TableCell>
                 </TableRow>
               </TableHeader>
-
               <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
-                {participantesData.map((participante) => (
-                  <TableRow key={participante.id}>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.nomeComprador}</TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.emailComprador}</TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.tipoBilhete}</TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.quantidadeComprada}</TableCell>
+                {clientes.map((cliente) => (
+                  <TableRow key={cliente.ID_Clientes}>
                     <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {participante.pedidoFatura ? "Sim" : "Não"}
+                      {cliente.ID_Clientes}
                     </TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.dataCompra}</TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">{participante.metodoPagamento}</TableCell>
                     <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {cliente.Nome}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {cliente.Email || "-"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {cliente.Contacto || "-"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {cliente.NIF || "-"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
+                      {cliente.Morada || "-"}
+                    </TableCell>
+                    <TableCell className="px-4 py-3 text-theme-sm">
                       <Badge
                         size="sm"
-                        color={
-                          participante.estadoBilhete === "válido"
-                            ? "success"
-                            : participante.estadoBilhete === "usado"
-                              ? "warning"
-                              : "error"
-                        }
+                        color={cliente.Pedido_Fatura ? "success" : "warning"}
                       >
-                        {participante.estadoBilhete}
+                        {cliente.Pedido_Fatura ? "Sim" : "Não"}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-start text-theme-sm">
-                      {participante.checkIn ? "✅" : "❌"}
-                    </TableCell>
-                    <TableCell className="px-4 py-3 text-gray-500 text-theme-sm dark:text-gray-400">
-                      {participante.logCheckIn || "-"}
                     </TableCell>
                     <TableCell className="px-4 py-3 text-start">
                       <div className="flex gap-2">
                         <button
                           className="px-3 py-1 text-xs font-medium text-white bg-blue-500 rounded hover:bg-blue-600 transition-colors"
-                          onClick={() => handleEditar(participante)}
+                          onClick={() => handleEdit(cliente)}
                         >
                           Editar
                         </button>
                         <button
                           className="px-3 py-1 text-xs font-medium text-white bg-red-500 rounded hover:bg-red-600 transition-colors"
-                          onClick={() => handleExcluir(participante.id)}
+                          onClick={() => handleDelete(cliente.ID_Clientes)}
                         >
                           Excluir
                         </button>
@@ -416,15 +434,15 @@ export default function GerirClientes() {
         </div>
       </div>
 
-      {isModalOpen && participanteEditando && (
-        <div className="fixed inset-0 flex items-center justify-center z-[9997] p-4 bg-black/50">
+      {editandoCliente && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9997] p-4 bg-black/30">
           <div className="pointer-events-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Editar Cliente
               </h2>
               <button
-                onClick={handleCancelar}
+                onClick={() => setEditandoCliente(null)}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -435,24 +453,23 @@ export default function GerirClientes() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Nome do Comprador
+                    Nome
                   </label>
                   <input
                     type="text"
-                    value={participanteEditando.nomeComprador}
-                    onChange={(e) => handleInputChange('nomeComprador', e.target.value)}
+                    value={editandoCliente.Nome}
+                    onChange={(e) => handleInputChange("Nome", e.target.value)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Email do Comprador
+                    Email
                   </label>
                   <input
                     type="email"
-                    value={participanteEditando.emailComprador}
-                    onChange={(e) => handleInputChange('emailComprador', e.target.value)}
+                    value={editandoCliente.Email || ''}
+                    onChange={(e) => handleInputChange("Email", e.target.value || null)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
@@ -461,135 +478,65 @@ export default function GerirClientes() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Tipo de Bilhete
-                  </label>
-                  <select
-                    value={participanteEditando.tipoBilhete}
-                    onChange={(e) => handleInputChange('tipoBilhete', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="Normal">Normal</option>
-                    <option value="VIP">VIP</option>
-                    <option value="Premium">Premium</option>
-                    <option value="Estudante">Estudante</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Quantidade Comprada
+                    Contacto
                   </label>
                   <input
-                    type="number"
-                    min="1"
-                    value={participanteEditando.quantidadeComprada}
-                    onChange={(e) => handleInputChange('quantidadeComprada', parseInt(e.target.value))}
+                    type="text"
+                    value={editandoCliente.Contacto || ''}
+                    onChange={(e) => handleInputChange("Contacto", e.target.value || null)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Método de Pagamento
-                  </label>
-                  <select
-                    value={participanteEditando.metodoPagamento}
-                    onChange={(e) => handleInputChange('metodoPagamento', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="MB Way">MB Way</option>
-                    <option value="Cartão">Cartão</option>
-                    <option value="Transferência">Transferência</option>
-                    <option value="PayPal">PayPal</option>
-                    <option value="Dinheiro">Dinheiro</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Estado do Bilhete
-                  </label>
-                  <select
-                    value={participanteEditando.estadoBilhete}
-                    onChange={(e) => handleInputChange('estadoBilhete', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  >
-                    <option value="válido">Válido</option>
-                    <option value="usado">Usado</option>
-                    <option value="cancelado">Cancelado</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Data da Compra
+                    NIF
                   </label>
                   <input
-                    type="datetime-local"
-                    value={participanteEditando.dataCompra.slice(0, 16)}
-                    onChange={(e) => handleInputChange('dataCompra', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Log Check-in
-                  </label>
-                  <input
-                    type="datetime-local"
-                    value={participanteEditando.logCheckIn ? participanteEditando.logCheckIn.slice(0, 16) : ''}
-                    onChange={(e) => handleInputChange('logCheckIn', e.target.value)}
+                    type="text"
+                    value={editandoCliente.NIF || ''}
+                    onChange={(e) => handleInputChange("NIF", e.target.value || null)}
                     className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={participanteEditando.pedidoFatura}
-                      onChange={(e) => handleInputChange('pedidoFatura', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Pedido de Fatura
-                    </span>
-                  </label>
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  Morada
+                </label>
+                <textarea
+                  value={editandoCliente.Morada || ''}
+                  onChange={(e) => handleInputChange("Morada", e.target.value || null)}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  rows={3}
+                />
+              </div>
 
-                <div>
-                  <label className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      checked={participanteEditando.checkIn}
-                      onChange={(e) => handleInputChange('checkIn', e.target.checked)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Check-in Realizado
-                    </span>
-                  </label>
-                </div>
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={editandoCliente.Pedido_Fatura === 1}
+                    onChange={(e) => handleInputChange("Pedido_Fatura", e.target.checked)}
+                    className="mr-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Pedido de Fatura
+                  </span>
+                </label>
               </div>
             </div>
 
             <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
               <button
-                onClick={handleCancelar}
+                onClick={() => setEditandoCliente(null)}
                 className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-md hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
                 disabled={salvando}
               >
                 Cancelar
               </button>
               <button
-                onClick={handleSalvar}
+                onClick={handleSave}
                 className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors disabled:opacity-50 flex items-center gap-2"
                 disabled={salvando}
               >

@@ -55,7 +55,7 @@ export default function UserMetaCard() {
             country: data.data.country || "",
             city: data.data.city || "",
             postalCode: data.data.postalCode || "",
-            profilePhoto: data.data.profilePhoto || "/images/user/owner.jpg"
+            profilePhoto: data.data.profilePhoto || ""
           });
         } else {
           setError(data.error || 'Failed to load profile');
