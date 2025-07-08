@@ -149,10 +149,7 @@ export default function Criarbilhetespage() {
                     <span>Quantidade:</span>
                     <span className="font-medium">{bilheteData.quantidade || '0'}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span>Data:</span>
-                    <span className="font-medium">{formatDate(bilheteData.dataEvento) || 'Não definida'}</span>
-                  </div>
+                  
                 </div>
               </div>
 

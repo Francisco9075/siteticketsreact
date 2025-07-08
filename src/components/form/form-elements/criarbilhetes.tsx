@@ -41,7 +41,6 @@ interface CriarbilhetesProps {
     tipoBilhete: string;
     precoLiquido: string;
     quantidade: string;
-    dataEvento: string;
     gratuito: boolean;
   }) => void;
 }
@@ -126,7 +125,7 @@ function ConfirmationModal({ modal, onConfirm, onCancel }: {
               ${modal.type === 'warning' ? 'bg-yellow-600 hover:bg-yellow-700' : ''}
               ${modal.type === 'info' ? 'bg-blue-600 hover:bg-blue-700' : ''}
             `}
-          >
+            >
             Confirmar
           </button>
         </div>
@@ -151,7 +150,6 @@ export default function Criarbilhetes({ onChange }: CriarbilhetesProps) {
     tipo: "",
     preco: "",
     quantidade: "",
-    hora: "",
     gratuito: false,
   });
 
@@ -174,7 +172,6 @@ export default function Criarbilhetes({ onChange }: CriarbilhetesProps) {
         tipoBilhete: ticketTypes.find(t => t.value === form.tipo)?.label || form.tipo,
         precoLiquido: form.preco,
         quantidade: form.quantidade,
-        dataEvento: form.hora,
         gratuito: form.gratuito
       });
     }
@@ -289,7 +286,6 @@ export default function Criarbilhetes({ onChange }: CriarbilhetesProps) {
           tipo: "",
           preco: "",
           quantidade: "",
-          hora: "",
           gratuito: false,
         }));
       } else {
@@ -383,20 +379,6 @@ export default function Criarbilhetes({ onChange }: CriarbilhetesProps) {
             value={form.quantidade}
             onChange={(e) => setForm((f) => ({ ...f, quantidade: e.target.value }))}
             placeholder="Número de bilhetes totais"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="data">Data do Evento</Label>
-          <DatePicker
-            selected={form.hora ? new Date(form.hora) : null}
-            onChange={(date: Date) => setForm((f) => ({ ...f, hora: date.toISOString() }))}
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-            dateFormat="dd/MM/yyyy HH:mm"
-            placeholderText="Selecione data e hora"
-            className="w-full"
           />
         </div>
 

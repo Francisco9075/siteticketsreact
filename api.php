@@ -28,9 +28,7 @@ $jsonData = json_decode($rawInput, true);
 $action = $_GET['action'] ?? $jsonData['action'] ?? null;
 
 function generatePaymentPage($ticketId, $nome, $tipo, $preco, $quantidade, $gratuito) {
-            // ... (mantenha o mesmo conteúdo da função generatePaymentPage que você já tem)
-            // Esta função pode permanecer exatamente como estava
-            // ...
+           
 }
 
 switch ($action) {
