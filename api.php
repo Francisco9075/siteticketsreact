@@ -796,8 +796,8 @@ switch ($action) {
             $uniqueId = uniqid();
             $paymentPageUrl = "ticket-{$ticketSlug}-{$uniqueId}.html";
 
-            $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Quant_Total, Gratuito, payment_page_url) 
-                    VALUES (:eventoId, :nome, :tipo, :preco, :quantidade, :gratuito, :paymentPageUrl)";
+            $sql = "INSERT INTO BILHETES (ID_Evento, NOME, Tipo, Preco, Preco_Original, Quant_Total, Gratuito, payment_page_url) 
+                    VALUES (:eventoId, :nome, :tipo, :preco, :precoOriginal, :quantidade, :gratuito, :paymentPageUrl)";
             
             try {
                 $stmt = $pdo->prepare($sql);
@@ -807,6 +807,7 @@ switch ($action) {
                     ':nome' => $nome,
                     ':tipo' => $tipo,
                     ':preco' => $precoFinal,
+                    ':precoOriginal' => $precoFinal,
                     ':quantidade' => $quantidade,
                     ':gratuito' => $gratuito,
                     ':paymentPageUrl' => $paymentPageUrl
@@ -846,7 +847,6 @@ switch ($action) {
                 echo json_encode(["erro" => "Erro ao inserir"]);
             }
         }
-
         break;
     
     case 'comprar_bilhete':
@@ -1007,38 +1007,51 @@ switch ($action) {
         $quant_total = intval($_POST['quant_total'] ?? 0);
         $quant_vendida = intval($_POST['quant_vendida'] ?? 0);
         $estado_id = intval($_POST['estado_id'] ?? 1);
-        $desconto = intval($_POST['desconto'] ?? 0);
+        $desconto = intval($_POST['desconto'] ?? 0); // desconto em %
 
         if ($id <= 0 || empty($nome)) {
             echo json_encode(['success' => false, 'message' => 'Dados inválidos']);
             exit();
         }
 
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM BILHETES WHERE ID_Bilhetes = ?");
+        // Buscar o preço original
+        $stmt = $pdo->prepare("SELECT Preco_Original FROM BILHETES WHERE ID_Bilhetes = ?");
         $stmt->execute([$id]);
-        if ($stmt->fetchColumn() == 0) {
+        $bilhete = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$bilhete) {
             echo json_encode(['success' => false, 'message' => 'Bilhete não encontrado']);
             exit();
         }
 
+        $preco_original = floatval($bilhete['Preco_Original']);
+        $preco_com_desconto = $preco_original;
+
+        if ($desconto > 0 && $desconto < 100) {
+            $preco_com_desconto = $preco_original - ($preco_original * ($desconto / 100));
+        }
+
+        // Atualiza o bilhete com o novo preço
         $sql = "UPDATE BILHETES SET 
                     NOME = ?, 
                     Quant_Total = ?, 
                     Quant_Vendida = ?, 
                     ID_Estado_Bilhete = ?, 
-                    Desconto = ? 
+                    Desconto = ?, 
+                    Preco = ? 
                 WHERE ID_Bilhetes = ?";
 
         $stmt = $pdo->prepare($sql);
         $result = $stmt->execute([
-            $nome, $quant_total, $quant_vendida, $estado_id, $desconto, $id
+            $nome, $quant_total, $quant_vendida, $estado_id, $desconto, $preco_com_desconto, $id
         ]);
 
         echo json_encode([
-            'success' => $result, 
+            'success' => $result,
             'message' => $result ? 'Bilhete atualizado com sucesso' : 'Nenhuma alteração foi feita'
         ]);
         break;
+
 
     case 'apagar_bilhete':
         $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -1213,7 +1226,73 @@ switch ($action) {
         }
         break;
 
-    //section clientes
+    //section clientes    
+    case 'gerir_clientes':
+        if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+            $sql = "SELECT 
+                ID_Clientes, None AS Nome, Email, Contacto, NIF, Morada, Pedido_Fatura
+                FROM Clientes";
+
+            try {
+                $stmt = $pdo->query($sql);
+                $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
+                echo json_encode(["sucesso" => true, "clientes" => $clientes]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(["erro" => "Erro ao buscar clientes: " . $e->getMessage()]);
+            }
+        }
+        break;
+
+    case 'editar_cliente':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $dados = json_decode(file_get_contents('php://input'), true);
+            
+            try {
+                $sql = "UPDATE Clientes SET 
+                    Nome = :nome,
+                    Email = :email,
+                    Contacto = :contacto,
+                    NIF = :nif,
+                    Morada = :morada,
+                    Pedido_Fatura = :pedido_fatura
+                    WHERE ID_Clientes = :id_cliente";
+                
+                $stmt = $pdo->prepare($sql);
+                $successo = $stmt->execute([
+                    ':nome'           => $dados['nome'],
+                    ':email'         => $dados['email'],
+                    ':contacto'      => $dados['contacto'],
+                    ':nif'           => $dados['nif'],
+                    ':morada'        => $dados['morada'],
+                    ':pedido_fatura' => $dados['pedido_fatura'],
+                    ':id_cliente'    => $dados['id_cliente']
+                ]);
+
+                echo json_encode(['successo' => $successo]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => "Error no atualizar cliente: " . $e->getMessage()]);
+            }
+        }
+        break;
+
+    case 'apagar_cliente':
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $dados = json_decode(file_get_contents('php://input'), true);
+            
+            try {
+                $sql = "DELETE FROM Clientes WHERE ID_Clientes = :id_cliente";
+                $stmt = $pdo->prepare($sql);
+                $success = $stmt->execute([':id_cliente' => $dados['id_cliente']]);
+                echo json_encode(['success' => $success]);
+            } catch (PDOException $e) {
+                http_response_code(500);
+                echo json_encode(['error' => "Erro ao excluir cliente: ". $e->getMessage()]);
+            }
+        }
+        break;
+
 
     //Sign In
     case 'signin':
