@@ -22,6 +22,7 @@ interface Bilhete {
   Evento_Nome: string;
   Estado_Nome: string;
   ID_Estado_Bilhete: number;
+  Desconto: number
 }
 
 interface Toast {
@@ -189,9 +190,22 @@ export default function GerirBilhetes() {
   }, []);
 
   const estadosBilhete = [
-    { id: 1, nome: "Ativo" },
-    { id: 2, nome: "Desativado" },
-    { id: 3, nome: "Esgotado" }
+  { id: 1, nome: "Ativo" },
+  { id: 2, nome: "Desativado" },
+  { id: 3, nome: "Esgotado" }
+  ];
+
+  const quantDesconto = [
+  { id: 0, nome: "0%" },
+  { id: 10, nome: "10%" },
+  { id: 20, nome: "20%" },
+  { id: 30, nome: "30%" },
+  { id: 40, nome: "40%" },
+  { id: 50, nome: "50%" },
+  { id: 60, nome: "60%" },
+  { id: 70, nome: "70%" },
+  { id: 80, nome: "80%" },
+  { id: 90, nome: "90%" }
   ];
 
   function buscarBilhetes() {
@@ -280,7 +294,8 @@ export default function GerirBilhetes() {
         bilheteOriginal.NOME !== editandoBilhete.NOME ||
         bilheteOriginal.Quant_Total !== editandoBilhete.Quant_Total ||
         bilheteOriginal.Quant_Vendida !== editandoBilhete.Quant_Vendida ||
-        bilheteOriginal.ID_Estado_Bilhete !== editandoBilhete.ID_Estado_Bilhete
+        bilheteOriginal.ID_Estado_Bilhete !== editandoBilhete.ID_Estado_Bilhete ||
+        bilheteOriginal.Desconto !== editandoBilhete.Desconto
       )
     );
 
@@ -291,8 +306,8 @@ export default function GerirBilhetes() {
     }
 
     // Validar que os campos obrigatórios estão preenchidos
-    if (!editandoBilhete.ID_Estado_Bilhete) {
-      addToast('error', 'Dados inválidos', 'Por favor, selecione um estado válido.');
+    if (!editandoBilhete.ID_Estado_Bilhete || editandoBilhete.Desconto === undefined || editandoBilhete.Desconto === null) {
+      addToast('error', 'Dados inválidos', 'Por favor, selecione um estado e um desconto válidos.');
       return;
     }
 
@@ -304,6 +319,7 @@ export default function GerirBilhetes() {
     formData.append('quant_total', editandoBilhete.Quant_Total.toString());
     formData.append('quant_vendida', editandoBilhete.Quant_Vendida.toString());
     formData.append('estado_id', editandoBilhete.ID_Estado_Bilhete.toString());
+    formData.append('desconto', editandoBilhete.Desconto.toString());
 
     fetch("http://localhost/api.php?action=editar_bilhete", {
       method: "POST",
@@ -343,7 +359,7 @@ export default function GerirBilhetes() {
     if (!editandoBilhete) return;
     setEditandoBilhete({
       ...editandoBilhete,
-      [field]: field === 'ID_Estado_Bilhete' ? parseInt(value) || 0 : value,
+      [field]: field === 'Desconto' || field === 'ID_Estado_Bilhete' ? parseInt(value) || 0 : value,
     });
   }
 
@@ -568,6 +584,20 @@ export default function GerirBilhetes() {
                         disabled={estado.id === 2 && editandoBilhete.Quant_Vendida > 0}
                       >
                         {estado.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Desconto</label>
+                  <select
+                    value={editandoBilhete.Desconto ?? 0}
+                    onChange={(e) => handleInputChange('Desconto', parseInt(e.target.value))}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                  >
+                    {quantDesconto.map((desconto) => (
+                      <option className="dark:bg-black" key={desconto.id} value={desconto.id}>
+                        {desconto.nome}
                       </option>
                     ))}
                   </select>
