@@ -1,5 +1,4 @@
 <?php
-<?php
 // Inicie a sessão se necessário
 session_start();
 
